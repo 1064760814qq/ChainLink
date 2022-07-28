@@ -1,7 +1,7 @@
 const ethers = require("ethers");
 const constants = require("./constants");
 const { Command } = require("commander");
-const { setupParentArgs, waitForTx } = require("./utils");
+const { setupParentArgs, waitForTx, expandDecimals } = require("./utils");
 
 function sleep(duration) {
   return new Promise((resolve) => {
@@ -153,6 +153,32 @@ const queryBalance = new Command("query-balance")
     //   await waitForTx(args.provider, tx.hash)
   });
 
+const setMintAmount = new Command("set-MintAmount")
+  .description("Adds an admin")
+  .option(
+    "--contract <address>",
+    "Bridge contract address",
+    constants.NFT_1155_ADDRESS
+  )
+  .option("--amount <amount>", "amount", 100)
+  .action(async function (args) {
+    await setupParentArgs(args, args.parent.parent);
+    const nftInstance = new ethers.Contract(
+      args.contract,
+      constants.ContractABIs.N1155.abi,
+      args.wallet
+    );
+    console.log(`Adding ${args.amount} as a admin.`);
+
+    //   let tx1 =await nftInstance.mint(constants.ADMIN,args.id,args.amount,'0x00');
+    //   await waitForTx(args.provider, tx1.hash)
+    const balance = await nftInstance.setMintAmount(
+      expandDecimals(args.amount, 18)
+    );
+    console.log("---", balance);
+    //   await waitForTx(args.provider, tx.hash)
+  });
+
 const transferNft = new Command("transfer-nft")
   .description("Adds an admin")
   .option(
@@ -256,6 +282,7 @@ adminCmd.addCommand(setTokenUri);
 adminCmd.addCommand(setBaseUri);
 adminCmd.addCommand(queryTokenUri);
 adminCmd.addCommand(queryBalance);
+adminCmd.addCommand(setMintAmount);
 adminCmd.addCommand(mintBatchNft);
 adminCmd.addCommand(transferNft);
 module.exports = adminCmd;

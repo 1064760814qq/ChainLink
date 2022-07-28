@@ -50,8 +50,16 @@ function mint(address to, uint256 id, bytes memory data) public  onlyOwner() {
           mintAmount =_amount;
     }
 
+
+   function getMintAmount(uint256 _amount) external (uint256){
+          return mintAmount;
+    }
     function setFreeCityContract(address _freeCity) public onlyOwner(){ 
        freeCity = _freeCity;
+    }
+
+    function getFreeCityContract() external returns(address) {
+      return freeCity;
     }
 
     function preSale(uint256 tokenId,string memory uri) public payable{
