@@ -1,0 +1,24 @@
+{
+  "description": "Friendly OpenSea Creature that enjoys long swims in the ocean.",
+  "external_url": "https://openseacreatures.io/3",
+  "image": "https://gateway.pinata.cloud/ipfs/QmSvR6dPX8WE5jFYXWcYAnGcZiQ8rxzCASL1Vj9NWfZw59/1010101010101010101.png",
+  "name": "Dave Starbelly",
+  "attributes": [
+      {
+        "trait_type": "level", 
+        "value": "2"
+      },
+      {
+        "trait_type": "quality", 
+        "value": "R"
+      },
+      {
+        "trait_type": "mint times", 
+        "value": "2"
+      },
+      {
+        "trait_type": "number",   
+        "value": "100001"
+      }
+    ]
+}

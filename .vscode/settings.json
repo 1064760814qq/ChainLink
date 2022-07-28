@@ -1,0 +1,4 @@
+{
+    "solidity.defaultCompiler": "localNodeModule",
+    "solidity.compileUsingLocalVersion": "/Users/libaozhong/study/solidity/demo/soljson-v0.8.0+commit.c7dfd78e.js"
+}

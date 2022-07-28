@@ -1,0 +1,45 @@
+<html>
+    <header>
+        <title>test</title>
+    </header>
+    <body>
+        <div id="fb-root"></div>
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/zh_CN/sdk.js#xfbml=1&version=v14.0&appId=1698885600473995&autoLogAppEvents=1" nonce="6WSJUNuk"></script>
+   
+      <div id="spinner"
+      style="
+          background: #4267b2;
+          border-radius: 5px;
+          color: white;
+          height: 40px;
+          text-align: center;
+          width: 250px;">
+      Loading
+      <div
+      	
+      data-onlogin="test()"
+      class="fb-login-button"
+      data-max-rows="1"
+      data-size="large"
+      data-button-type="continue_with"
+      data-use-continue-as="true"
+      data-scope="instagram_basic,pages_show_list,pages_messaging,pages_read_user_content,business_management,instagram_manage_insights,ads_management,pages_read_engagement"
+      ></div>
+  </div>
+    <script>
+        function test(){
+            console.log(window.FB.getAccessToken(),window.FB)
+        }
+        var finished_rendering = function() {
+            console.log("finished rendering plugins");
+            var spinner = document.getElementById("spinner");
+            spinner.removeAttribute("style");
+            spinner.removeChild(spinner.childNodes[0]);
+          }
+          document.onload=function(){
+            FB.Event.subscribe('xfbml.render', finished_rendering);
+          }
+       
+   </script>
+    </body>
+</html>

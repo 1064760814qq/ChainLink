@@ -1,0 +1,83 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "type": "pwa-node",
+            "request": "launch",
+            "name": "Launch Program",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/src/index.js",
+            "args": [
+                "ERC",
+                "mint",
+                "--to",
+                "0x9AEd59261BdF0Aa334F1790881176c7F962D4337"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
+            ]
+        },
+        {
+            "type": "pwa-node",
+            "request": "launch",
+            "name": "mint NFT",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/src/index.js",
+            "args": [
+                "NFT",
+                "mint-nft",
+                "--to",
+                "0x9AEd59261BdF0Aa334F1790881176c7F962D4337"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
+            ]
+        },
+        {
+            "type": "pwa-node",
+            "request": "launch",
+            "name": "NFT transfor",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/src/index.js",
+            "args": [
+                "NFT",
+                "transfer-nft",
+                "--id",
+                "11",
+                "--privateKey",
+                "0x93fc31a4e847c6f1d6531b0d4d2aaf50c4803536f6a15bdc6ffa8f0e8504a9f4",
+                "--to",
+                "0xc924be83b51b0683af6b363312aa7a9fade4a612"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
+            ]
+        },
+        {
+            "type": "pwa-node",
+            "request": "launch",
+            "name": "NFT1155 mint",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/src/index.js",
+            "args": [
+                "NNFT",
+                "mint-nft"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
+            ]
+        }
+    ]
+}
