@@ -2,12 +2,11 @@ import { ethers, upgrades } from "hardhat";
 
 async function main() {
   // Deploying
-
-  const FreeCityGame = await ethers.getContractFactory("FreeCityGame");
-  const instance = await upgrades.deployProxy(FreeCityGame, ["FCM", "FCM"]);
+  const VoiceErc20 = await ethers.getContractFactory("VoiceErc20");
+  const instance = await upgrades.deployProxy(VoiceErc20, ["FCR", "FCR"]);
   await instance.deployed();
 
-  console.log("Voice721 deployed to:", instance.address);
+  console.log("erc20 to:", instance.address);
 
   // Upgrading
   //   const BoxV2 = await ethers.getContractFactory("BoxV2");

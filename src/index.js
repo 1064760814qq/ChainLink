@@ -5,6 +5,7 @@ const constants = require("./constants");
 const nft = require("./NFTCmd");
 const erc = require("./ERCCmd");
 const en1155 = require("./NFT1155CMD");
+const native = require("./NativeCmd");
 
 program.option("--url <value>", "URL to connect to", constants.URL);
 program.option(
@@ -17,14 +18,20 @@ program.option(
   "--jsonWalletPassword <value>",
   "(Optional) Password for encrypted JSON wallet"
 );
-program.option("--gasLimit <value>", "Gas limit for transactions", "8000000");
-program.option("--gasPrice <value>", "Gas limit for transactions", "20000000");
+program.option("--gasLimit <value>", "Gas limit for transactions", "610000");
+program.option(
+  "--gasPrice <value>",
+  "Gas limit for transactions",
+  "46000000000"
+);
 program.option("--networkId <value>", "Network Id", constants.NETWORK_ID);
 
 program.allowUnknownOption(false);
 program.addCommand(nft);
 program.addCommand(erc);
 program.addCommand(en1155);
+program.addCommand(native);
+
 const run = async () => {
   try {
     await program.parseAsync(process.argv);

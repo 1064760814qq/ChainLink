@@ -31,7 +31,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 // Go to https://hardhat.org/config/ to learn more
 
 const config: HardhatUserConfig = {
-  //  defaultNetwork: "localhost",
+   defaultNetwork: "localhost",
   
   networks: {
     hardhat: {
@@ -51,15 +51,28 @@ const config: HardhatUserConfig = {
         "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a",
       ],
     },
+    polygon:{
+      url: "https://polygon-mainnet.infura.io/v3/ff2efa316ea244268597e5eae99a4b3d",
+      accounts: ["0x2d9f7ce04c85e26dee9637b06ad55120db5fc9b00628649b44c52077f8963191","0xee0832ebea198e742900d6c727413cef4b96edd053e5480b336809e06939005a","0x93fc31a4e847c6f1d6531b0d4d2aaf50c4803536f6a15bdc6ffa8f0e8504a9f4"],
+      chainId: 137,
+      gas: 210000,
+      gasPrice: 46000000000,
+    },
     mumbai: {
-      url:  "https://rpc-mumbai.maticvigil.com",
+      url:  "https://polygon-mumbai.infura.io/v3/ff2efa316ea244268597e5eae99a4b3d",
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY,"0xee0832ebea198e742900d6c727413cef4b96edd053e5480b336809e06939005a","0x93fc31a4e847c6f1d6531b0d4d2aaf50c4803536f6a15bdc6ffa8f0e8504a9f4"] : [],
         chainId: 80001,
+        gas: 210000,
+        gasPrice: 46000000000,
     },
     rinkeby:{
-      url:"https://rinkeby.infura.io/v3/ff2efa316ea244268597e5eae99a4b3d",  
-      accounts: ["0x60936fbda7fbe784c08e8c83a75b20235ac75699dedfb461f6c4c8c86b2d76f2"],
+      url:"https://rinkeby.infura.io/v3/7307908c50f44d578fd7470e6df7921e",  
+      accounts: [
+        "0x60936fbda7fbe784c08e8c83a75b20235ac75699dedfb461f6c4c8c86b2d76f2",
+      "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d",
+      "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a",
+    ],
       chainId: 4,
 
     },

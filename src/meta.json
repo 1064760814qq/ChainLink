@@ -1,25 +1,13 @@
 {
-    "description": "Friendly OpenSea Creature that enjoys long swims in the ocean.",
-    "external_url": "https://openseacreatures.io/3",
-    "image": "https://gateway.pinata.cloud/ipfs/QmSvR6dPX8WE5jFYXWcYAnGcZiQ8rxzCASL1Vj9NWfZw59/1010101010101010101.png",
-    "name": "Dave Starbelly",
-    "creater": "0x9F883b12fD0692714C2f28be6C40d3aFdb9081D3",
-    "attributes": [
-        {
-          "trait_type": "level", 
-          "value": "2"
-        },
-        {
-          "trait_type": "quality", 
-          "value": "R"
-        },
-        {
-          "trait_type": "mint times", 
-          "value": "2"
-        },
-        {
-          "trait_type": "number", 
-          "value": "100001"
-        }
-      ]
- }
+  "description":"Microphone is the free city platform that is regarded as a tool for players to tokenize their social value. Players with microphones will have the ability to financialize social value.",
+  "external_url":"https://www.free-city.io/",
+  "image":"https://bafybeihxugw2qnzsqrr75tmrirjndisivytl6idqooqks6blbl2fbcrg34.ipfs.infura-ipfs.io/UR.png",
+  "name":"#100001",
+  "creater":"0x9F883b12fD0692714C2f28be6C40d3aFdb9081D3",
+  "attributes":[
+      {
+          "trait_type":"quality",
+          "value":"R"
+      }
+  ]
+}

@@ -94,6 +94,64 @@
             "outFiles": [
                 "${workspaceFolder}/dist/**/*.js"
             ]
+        },
+        {
+            "type": "pwa-node",
+            "request": "launch",
+            "name": "NFT mint",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/src/index.js",
+            "args": [
+                "NFT",
+                "mint-nft",
+                "--uri",
+                "https://bafybeiaed4jymeisnpkqbz6r2h76hlpzxvqkhtawyy5iclzvf6alangalu.ipfs.infura-ipfs.io/"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
+            ]
+        },
+        {
+            "type": "pwa-node",
+            "request": "launch",
+            "name": "NFT deposit",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/src/index.js",
+            "args": [
+                "NFT",
+                "deposit-nft",
+                "--privateKey",
+                "0x0e4aecda7e99557cf252fed0630a5f98a36fc81229c1a32bf8f3f3f1dbf4c7f4",
+                "--id",
+                "3"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
+            ]
+        },
+        {
+            "type": "pwa-node",
+            "request": "launch",
+            "name": "native transfer",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/src/index.js",
+            "args": [
+                "NATIVE",
+                "transfer",
+                "--to",
+                "0xa6e9eBdca4Ed1a38da7F070afC306FF9C94FC54B",
+                "--amount",
+                "0.1"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
+            ]
         }
     ]
 }

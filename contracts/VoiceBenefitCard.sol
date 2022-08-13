@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/presets/ERC1155PresetMinterPauserUpgradeable.sol";
 
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
@@ -14,6 +15,9 @@ function preMint(address to,  uint256 tokenId, uint256 quality,string memory uri
 }
 
 contract VoiceBenefitCard is OwnableUpgradeable,ERC1155PresetMinterPauserUpgradeable{
+
+    using ECDSAUpgradeable for bytes32;
+    address private openSea;
 
      // 用户拥有的tokenId,用户只能拥有一种类型的token
    mapping(address=>uint256)  ownTokenId;
@@ -28,21 +32,40 @@ contract VoiceBenefitCard is OwnableUpgradeable,ERC1155PresetMinterPauserUpgrade
  function init() public  initializer  {
                 super.initialize("");
                  __Ownable_init();
-           tokenMapUri[1]="https://bafybeihxugw2qnzsqrr75tmrirjndisivytl6idqooqks6blbl2fbcrg34.ipfs.infura-ipfs.io/N.png";
-           tokenMapUri[2]="https://bafybeihxugw2qnzsqrr75tmrirjndisivytl6idqooqks6blbl2fbcrg34.ipfs.infura-ipfs.io/R.png";
-           tokenMapUri[3]="https://bafybeihxugw2qnzsqrr75tmrirjndisivytl6idqooqks6blbl2fbcrg34.ipfs.infura-ipfs.io/SR.png";
-           tokenMapUri[4]="https://bafybeihxugw2qnzsqrr75tmrirjndisivytl6idqooqks6blbl2fbcrg34.ipfs.infura-ipfs.io/SSR.png";
-           tokenMapUri[5]="https://bafybeihxugw2qnzsqrr75tmrirjndisivytl6idqooqks6blbl2fbcrg34.ipfs.infura-ipfs.io/UR.png";
+           tokenMapUri[1]="https://vio.infura-ipfs.io/ipfs/Qmf1JQ9yN71haWAmg3Abyz2emD3Dpp7ZEwL9eTqzoJq26A/N.png";
+           tokenMapUri[2]="https://vio.infura-ipfs.io/ipfs/Qmf1JQ9yN71haWAmg3Abyz2emD3Dpp7ZEwL9eTqzoJq26A/R.png";
+           tokenMapUri[3]="https://vio.infura-ipfs.io/ipfs/Qmf1JQ9yN71haWAmg3Abyz2emD3Dpp7ZEwL9eTqzoJq26A/SR.png";
+           tokenMapUri[4]="https://vio.infura-ipfs.io/ipfs/Qmf1JQ9yN71haWAmg3Abyz2emD3Dpp7ZEwL9eTqzoJq26A/SSR.png";
+           tokenMapUri[5]="https://vio.infura-ipfs.io/ipfs/Qmf1JQ9yN71haWAmg3Abyz2emD3Dpp7ZEwL9eTqzoJq26A/UR.png";
     }
 
-function mint(address to, uint256 id, bytes memory data) public  onlyOwner() {
-          require(id > 0 && id < 6,"id error");
-          require(ownTokenId[to]==0,"only an card");
-          super.mint(to, id, 1, data);
-          ownTokenId[to]=id;
+function airdrop(address to, uint256 id,bytes32 _hash,uint8 v,bytes32 r,bytes32 s)public {
+        require(keccak256(abi.encode(to,id))==_hash,"n1");
+        require(ecrecover(_hash, v, r, s)==owner(),"n2");
+        require(id > 0 && id < 6,"n3");
+        require(ownTokenId[to]==0,"n4");
+         _mint(to, id, 1, "");
+         ownTokenId[to]=id;
 }
 
-    function uri(uint256 id) public view  override returns(string memory){
+ function isApprovedToMint(bytes32 _hash, bytes memory signature) internal view returns (bool) {
+       (address recovered, ECDSAUpgradeable.RecoverError error) = ECDSAUpgradeable.tryRecover(_hash, signature);
+        return error == ECDSAUpgradeable.RecoverError.NoError && recovered == owner();
+    }
+
+function mint(
+        address to,
+        uint256 id,
+        uint256 amount,
+        bytes memory data
+    ) public override  onlyOwner() {
+             require(id > 0 && id < 6,"id error");
+             require(ownTokenId[to]==0,"only an card");
+             super.mint(to, id, 1, "");
+              ownTokenId[to]=id;
+    }
+
+    function tokenURI(uint256 id) public view  returns(string memory){
         return tokenMapUri[id];
     }
 
@@ -51,18 +74,18 @@ function mint(address to, uint256 id, bytes memory data) public  onlyOwner() {
     }
 
 
-   function getMintAmount(uint256 _amount) external (uint256){
+   function getMintAmount() external  view returns(uint256){
           return mintAmount;
     }
     function setFreeCityContract(address _freeCity) public onlyOwner(){ 
        freeCity = _freeCity;
     }
 
-    function getFreeCityContract() external returns(address) {
+    function getFreeCityContract() view external returns(address) {
       return freeCity;
     }
 
-    function preSale(uint256 tokenId,string memory uri) public payable{
+    function preSale(uint256 tokenId,string memory uri) public payable{ 
       require(ownTokenId[msg.sender]>0 && balanceOf(msg.sender, ownTokenId[msg.sender])>0,"only an card");
       require(msg.value == mintAmount,"not  sufficient amount");
        FreeCity(freeCity).preMint(msg.sender,tokenId, ownTokenId[msg.sender],uri);
@@ -72,5 +95,34 @@ function mint(address to, uint256 id, bytes memory data) public  onlyOwner() {
         payable(to).transfer(address(this).balance);
     }
 
+
+    function setOpenSea(address _openSea)
+        external
+        onlyOwner()
+    {
+        openSea = _openSea;
+    }
+
+    function getOpenSea() public view returns (address) {
+        return openSea;
+    }
+
+    /**
+     * Override isApprovedForAll to auto-approve OS's proxy contract
+     */
+    function isApprovedForAll(address _owner, address _operator)
+        public
+        view
+        override(ERC1155Upgradeable)
+        returns (bool isOperator)
+    {
+        // if OpenSea's ERC721 Proxy Address is detected, auto-return true
+        // for Polygon's Mumbai testnet, use 0xff7Ca10aF37178BdD056628eF42fD7F799fAc77c
+        if (openSea != address(0) && _operator == openSea) {
+            return true;
+        }
+        // otherwise, use the default ERC721.isApprovedForAll()
+        return ERC1155Upgradeable.isApprovedForAll(_owner, _operator);
+    }
 
 }

@@ -12,7 +12,7 @@ const mint = new Command("mint")
     constants.ERC20_CONTRACT_ADDRESS
   )
   .option("--to <address>", "address")
-  .option("--amount <amount>", "amount", 100)
+  .option("--amount <amount>", "amount", 100000)
   .action(async function (args) {
     await setupParentArgs(args, args.parent.parent);
     const nftInstance = new ethers.Contract(

@@ -31,21 +31,22 @@ const mintNft = new Command("mint-nft")
       args.wallet
     );
 
-    const onwer = await nftInstance.owner();
-    console.log("---", onwer);
     console.log(`Adding ${args.admin} as a admin.`);
-    const uri1 = await nftInstance.uri(args.id);
-    console.log("---", uri1);
-    const tx1 = await nftInstance["mint(address,uint256,bytes)"](
-      constants.ADMIN,
-      args.id,
-      "0x00"
+    // const uri1 = await nftInstance.uri(args.id);
+    // console.log("---", uri1);
+    const tx1 = await nftInstance.airdrop(
+      "0x6f95718d05333cddc92f39aec83c1f4ecb832d9e",
+      2,
+      "0xce49fe220bf580a8ad76c0da4036ad222e01a0293060737241ed12a7308b6dd5",
+      "0x1c",
+      "0xf38ed7d33ceeaf44947a9d9e1cb99c2da4821e7a9318369e81e5abedc806e1f1",
+      "0x740fddf587b1304cfba648f694b30b2b02a5db859c986647373fe1521a273c80"
     );
     await waitForTx(args.provider, tx1.hash);
     //   let tx1 =await nftInstance.mint(constants.ADMIN,1,100,'0x00');
     //   await waitForTx(args.provider, tx1.hash)
 
-    const uri = await nftInstance.uri(args.id);
+    const uri = await nftInstance.tokenURI(args.id);
     console.log("---", uri);
     const tx = await nftInstance.balanceOf(constants.ADMIN, args.id);
     console.log("---", tx);
@@ -128,6 +129,8 @@ const setTokenUri = new Command("token-uri")
     console.log("---", tx);
     //   await waitForTx(args.provider, tx.hash)
   });
+
+  
 const queryBalance = new Command("query-balance")
   .description("Adds an admin")
   .option(
@@ -160,7 +163,7 @@ const setMintAmount = new Command("set-MintAmount")
     "Bridge contract address",
     constants.NFT_1155_ADDRESS
   )
-  .option("--amount <amount>", "amount", 100)
+  .option("--amount <amount>", "amount", 102)
   .action(async function (args) {
     await setupParentArgs(args, args.parent.parent);
     const nftInstance = new ethers.Contract(
@@ -194,7 +197,7 @@ const transferNft = new Command("transfer-nft")
     await setupParentArgs(args, args.parent.parent);
     const nftInstance = new ethers.Contract(
       args.contract,
-      constants.ContractABIs.NFT.abi,
+      constants.ContractABIs.N1155.abi,
       args.wallet
     );
     console.log(`Adding ${args.contract} as a admin.`);
@@ -227,7 +230,7 @@ const queryTokenUri = new Command("query-uri")
     await setupParentArgs(args, args.parent.parent);
     const nftInstance = new ethers.Contract(
       args.contract,
-      constants.ContractABIs.NFT.abi,
+      constants.ContractABIs.NN1155FT.abi,
       args.wallet
     );
     console.log(`Adding ${args.admin} as a admin.`);
