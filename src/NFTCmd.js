@@ -35,7 +35,11 @@ const mintNft = new Command("mint-nft")
     constants.NFT_CONTRACT_ADDRESS
   )
   .option("--to <address>", "address", constants.DEFAULT_MINT_TO)
-  .option("--uri <value>", "uri")
+  .option(
+    "--uri <value>",
+    "uri",
+    "https://vio.infura-ipfs.io/ipfs/QmUfd8dzupN5GNP8d7ijfDe37Ep5ZKGHZ3RQDBJbqz4iP4/1.json"
+  )
   .action(async function (args) {
     await setupParentArgs(args, args.parent.parent);
     const nftInstance = new ethers.Contract(
