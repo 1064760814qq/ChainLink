@@ -19,7 +19,7 @@ contract VoiceBenefitCard is OwnableUpgradeable,ERC1155PresetMinterPauserUpgrade
     using ECDSAUpgradeable for bytes32;
     address private openSea;
 
-     // 用户拥有的tokenId,用户只能拥有一种类型的token
+     
     mapping(address=>uint256)  ownTokenId;
 
     address private freeCity;
