@@ -10,7 +10,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC1155/presets/ERC1155PresetM
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
 interface FreeCity{
-function preMint(address to,  uint256 tokenId, uint256 quality,string memory uri) external;
+function preMint(address to,  uint256 quality) external;
 
 }
 
@@ -23,6 +23,8 @@ contract VoiceBenefitCard is OwnableUpgradeable,ERC1155PresetMinterPauserUpgrade
     mapping(address=>uint256)  ownTokenId;
 
     address private freeCity;
+    
+    mapping(address => uint256) public mintTotal;
 
     mapping(uint256=>string) tokenMapUri;
 
@@ -94,12 +96,14 @@ contract VoiceBenefitCard is OwnableUpgradeable,ERC1155PresetMinterPauserUpgrade
     }
 
 
-    function preSale(uint256 tokenId,string memory uri) public payable{ 
+  function preSale(uint256 tokenId) public payable{
       require(ownTokenId[msg.sender]>0 && balanceOf(msg.sender, ownTokenId[msg.sender])>0,"only an card");
       require(msg.value == mintPrice[tokenId-1],"not  sufficient amount");
-       FreeCity(freeCity).preMint(msg.sender,tokenId, ownTokenId[msg.sender],uri);
+      require(mintTotal[msg.sender]+1 <= uint8(5),"Exceeded times");
+       FreeCity(freeCity).preMint(msg.sender,ownTokenId[msg.sender]);
+       mintTotal[msg.sender] = mintTotal[msg.sender]+1;
        emit PreMint(msg.sender,tokenId,ownTokenId[msg.sender]);
-    }   
+    }
     
     function withDraw(address to) public onlyOwner(){
         payable(to).transfer(address(this).balance);
