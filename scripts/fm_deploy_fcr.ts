@@ -2,8 +2,8 @@ import { ethers, upgrades } from "hardhat";
 
 async function main() {
   // Deploying
-  const VoiceErc20 = await ethers.getContractFactory("VoiceErc20");
-  const instance = await upgrades.deployProxy(VoiceErc20, ["FCR", "FCR"]);
+  const FCR = await ethers.getContractFactory("FCR");
+  const instance = await FCR.deploy();
   await instance.deployed();
 
   console.log("erc20 to:", instance.address);

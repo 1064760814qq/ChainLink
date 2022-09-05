@@ -16,7 +16,7 @@
     "deploy_id": "npx hardhat run scripts/Id_card_deploy.ts --network mumbai",
     "deploy_id_prd": "npx hardhat run scripts/Id_card_deploy.ts --network polygon",
     "deploy_id_test": "npx hardhat run scripts/Id_card_deploy.ts --network goerli",
-    "deploy_all_erc20":"npm run deploy_fcc && npm run  deploy_fcr &&  npm run  deploy_usdt",
+    "deploy_all_erc20": "npm run deploy_fcc && npm run  deploy_fcr &&  npm run  deploy_usdt",
     "mintNft": "node src/index  NFT mint-nft "
   },
   "author": "",
@@ -55,6 +55,7 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
+    "@openzeppelin/contracts": "^4.7.3",
     "@openzeppelin/contracts-upgradeable": "^4.6.0",
     "commander": "^5.0.0",
     "ethers": "^5.6.9",
