@@ -107,7 +107,9 @@ const mintBatchNft = new Command("mint-batch-nft")
   )
   .option("--id <number>", "tokenid", 1)
   .option("--end <number>", "tokenid", 20)
-  .option("--amount <amount>", "amount", 100)
+  .option("--to <address>", "address", constants.DEFAULT_MINT_TO)
+  .option("--quality <number>", "quality", 1)
+  .option("--uri <value>", "uri", uri)
   .action(async function (args) {
     await setupParentArgs(args, args.parent.parent);
 
@@ -120,22 +122,12 @@ const mintBatchNft = new Command("mint-batch-nft")
     let i = args.id * 1;
     while (i <= args.end * 1) {
       await (async function (i) {
-        const tx1 = await nftInstance.mint(
-          constants.ADMIN,
-          i,
-          args.amount,
-          "0x00"
+        const tx1 = await nftInstance["mint(address,uint256,string)"](
+          args.to,
+          args.quality,
+          args.uri + "/" + i + ".json"
         );
         await waitForTx(args.provider, tx1.hash);
-
-        const tx2 = await nftInstance.setURI(i, i + ".png");
-        await waitForTx(args.provider, tx2.hash);
-        //   let tx1 =await nftInstance.mint(constants.ADMIN,1,100,'0x00');
-        //   await waitForTx(args.provider, tx1.hash)
-        const uri = await nftInstance.uri(i);
-        console.log("---", uri);
-        const tx = await nftInstance.balanceOf(constants.ADMIN, i);
-        console.log("---", tx);
       })(i);
       i++;
     }
@@ -198,6 +190,40 @@ const transferNft = new Command("transfer-nft")
 
     const tx = await nftInstance.balanceOf(args.to);
     console.log("---", tx);
+    //   await waitForTx(args.provider, tx.hash)
+  });
+
+const burnNft = new Command("burn-nft")
+  .description("Adds an admin")
+  .option(
+    "--contract <address>",
+    "Bridge contract address",
+    constants.NFT_CONTRACT_ADDRESS
+  )
+  .option("--start [number]", "start", 1)
+  .option("--end  [number]", "end", 70)
+  .action(async function (args) {
+    await setupParentArgs(args, args.parent.parent);
+    const nftInstance = new ethers.Contract(
+      args.contract,
+      constants.ContractABIs.NFT.abi,
+      args.wallet
+    );
+    console.log(`Adding ${args.contract} as a admin.`);
+
+    //   let tx1 =await nftInstance.mint(constants.ADMIN,args.id,args.amount,'0x00');
+    //   await waitForTx(args.provider, tx1.hash)
+    console.log("burn start", args.start, args.end);
+    let i = args.start * 1;
+    while (i <= args.end * 1) {
+      await (async function (i) {
+        const tx1 = await nftInstance.burn(i);
+        await waitForTx(args.provider, tx1.hash);
+      })(i);
+      i++;
+      console.log("burn ", i);
+    }
+
     //   await waitForTx(args.provider, tx.hash)
   });
 
@@ -391,5 +417,5 @@ NFTCmd.addCommand(SynthesisNft);
 NFTCmd.addCommand(queryAllNft);
 NFTCmd.addCommand(grantMintRole);
 NFTCmd.addCommand(withdraw);
-
+NFTCmd.addCommand(burnNft);
 module.exports = NFTCmd;
