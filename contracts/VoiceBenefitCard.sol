@@ -10,7 +10,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC1155/presets/ERC1155PresetM
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
 interface FreeCity{
-function preMint(address to,  uint256 quality) external;
+function preMint(address to, uint256 quality) external;
 
 }
 
@@ -96,7 +96,7 @@ contract VoiceBenefitCard is OwnableUpgradeable,ERC1155PresetMinterPauserUpgrade
     }
 
 
-  function preSale(uint256 tokenId) public payable{
+  function preSale(uint256 tokenId,string memory uri) public payable{
       require(ownTokenId[msg.sender]>0 && balanceOf(msg.sender, ownTokenId[msg.sender])>0,"only an card");
       require(msg.value == mintPrice[tokenId-1],"not  sufficient amount");
       require(mintTotal[msg.sender]+1 <= uint8(5),"Exceeded times");
