@@ -10,7 +10,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC1155/presets/ERC1155PresetM
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
 interface FreeCity{
-function preMint(address to,  uint256 tokenId, uint256 quality,string memory uri) external;
+function preMint(address to,  uint256 quality) external;
 
 }
 
@@ -19,17 +19,20 @@ contract VoiceBenefitCard is OwnableUpgradeable,ERC1155PresetMinterPauserUpgrade
     using ECDSAUpgradeable for bytes32;
     address private openSea;
 
-     // 用户拥有的tokenId,用户只能拥有一种类型的token
-   mapping(address=>uint256)  ownTokenId;
+     
+    mapping(address=>uint256)  ownTokenId;
 
-   address private freeCity;
-   uint256 private mintAmount;
+    address private freeCity;
+    
+    mapping(address => uint256) public mintTotal;
 
-   mapping(uint256=>string) tokenMapUri;
+    mapping(uint256=>string) tokenMapUri;
 
-   event PreMint(address,uint256,uint256);
+    uint256[5] private mintPrice;
 
- function init() public  initializer  {
+    event PreMint(address,uint256,uint256);
+
+    function init() public  initializer  {
                 super.initialize("");
                  __Ownable_init();
            tokenMapUri[1]="https://vio.infura-ipfs.io/ipfs/Qmf1JQ9yN71haWAmg3Abyz2emD3Dpp7ZEwL9eTqzoJq26A/N.png";
@@ -39,21 +42,21 @@ contract VoiceBenefitCard is OwnableUpgradeable,ERC1155PresetMinterPauserUpgrade
            tokenMapUri[5]="https://vio.infura-ipfs.io/ipfs/Qmf1JQ9yN71haWAmg3Abyz2emD3Dpp7ZEwL9eTqzoJq26A/UR.png";
     }
 
-function airdrop(address to, uint256 id,bytes32 _hash,uint8 v,bytes32 r,bytes32 s)public {
+    function airdrop(address to, uint256 id,bytes32 _hash,uint8 v,bytes32 r,bytes32 s)public {
         require(keccak256(abi.encode(to,id))==_hash,"n1");
         require(ecrecover(_hash, v, r, s)==owner(),"n2");
         require(id > 0 && id < 6,"n3");
         require(ownTokenId[to]==0,"n4");
          _mint(to, id, 1, "");
          ownTokenId[to]=id;
-}
+    }   
 
- function isApprovedToMint(bytes32 _hash, bytes memory signature) internal view returns (bool) {
+    function isApprovedToMint(bytes32 _hash, bytes memory signature) internal view returns (bool) {
        (address recovered, ECDSAUpgradeable.RecoverError error) = ECDSAUpgradeable.tryRecover(_hash, signature);
         return error == ECDSAUpgradeable.RecoverError.NoError && recovered == owner();
     }
 
-function mint(
+    function mint(
         address to,
         uint256 id,
         uint256 amount,
@@ -69,14 +72,6 @@ function mint(
         return tokenMapUri[id];
     }
 
-    function setMintAmount(uint256 _amount) external onlyOwner(){
-          mintAmount =_amount;
-    }
-
-
-   function getMintAmount() external  view returns(uint256){
-          return mintAmount;
-    }
     function setFreeCityContract(address _freeCity) public onlyOwner(){ 
        freeCity = _freeCity;
     }
@@ -85,12 +80,31 @@ function mint(
       return freeCity;
     }
 
-    function preSale(uint256 tokenId,string memory uri) public payable{ 
+    function setEveryNftMintPrice(uint256[5] memory mintPrices) external onlyOwner(){
+        for (uint256 i = 0; i < mintPrices.length; i++) {
+            mintPrice[i] = mintPrices[i];
+        }
+    }
+
+    function setSingleNftMintPrice(uint256 id,uint256 mintSinglePrice) external onlyOwner(){
+        require(id > 0 && id < 6,"id error");
+        mintPrice[id-1] = mintSinglePrice;
+    }
+
+    function  getMintPrice() external view returns(uint256[5] memory ){
+          return mintPrice;
+    }
+
+
+  function preSale(uint256 tokenId) public payable{
       require(ownTokenId[msg.sender]>0 && balanceOf(msg.sender, ownTokenId[msg.sender])>0,"only an card");
-      require(msg.value == mintAmount,"not  sufficient amount");
-       FreeCity(freeCity).preMint(msg.sender,tokenId, ownTokenId[msg.sender],uri);
+      require(msg.value == mintPrice[tokenId-1],"not  sufficient amount");
+      require(mintTotal[msg.sender]+1 <= uint8(5),"Exceeded times");
+       FreeCity(freeCity).preMint(msg.sender,ownTokenId[msg.sender]);
+       mintTotal[msg.sender] = mintTotal[msg.sender]+1;
        emit PreMint(msg.sender,tokenId,ownTokenId[msg.sender]);
     }
+    
     function withDraw(address to) public onlyOwner(){
         payable(to).transfer(address(this).balance);
     }
