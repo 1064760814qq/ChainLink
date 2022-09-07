@@ -5,6 +5,26 @@
     "version": "0.2.0",
     "configurations": [
 
+   {
+            "type": "pwa-node",
+            "request": "launch",
+            "name": "mint-fcr",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/src/index.js",
+            "args": [
+                "ERC",
+                "batch-mint",
+                "--contract",
+                "0x27DFCDbb1dEa292f08E5d5713946DcF59acD2d0B",
+                "--to",
+                "0x8B0dd18f72464E4732BEFc9D52a100316D8dc3F8"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
+            ]
+        },
         {
             "type": "pwa-node",
             "request": "launch",
@@ -136,6 +156,32 @@
         {
             "type": "pwa-node",
             "request": "launch",
+            "name": "mint batch nft",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/src/index.js",
+            "args": [
+                "NFT",
+                "mint-batch-nft",
+                "--id",
+                "1",
+                "--end",
+                "20",
+                "--to",
+                "0x6b38c8a8BDc778b839b10e4BDe40b41a9c9D01b1",
+                "--quality",
+                "1",
+                "--uri",
+                "https://vio.infura-ipfs.io/ipfs/Qmf6JhnhgHzvTXp2MX4mAwi7Wr5gUd1ffHg2HkuhMNEcPJ"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
+            ]
+        },
+        {
+            "type": "pwa-node",
+            "request": "launch",
             "name": "native transfer",
             "skipFiles": [
                 "<node_internals>/**"
@@ -148,6 +194,24 @@
                 "0xa6e9eBdca4Ed1a38da7F070afC306FF9C94FC54B",
                 "--amount",
                 "0.1"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/dist/**/*.js"
+            ]
+        },
+        {
+            "type": "pwa-node",
+            "request": "launch",
+            "name": "grant-role",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/src/index.js",
+            "args": [
+                "NFT",
+                "grant-mint-role",
+                "--to",
+                "0x6b38c8a8BDc778b839b10e4BDe40b41a9c9D01b1"
             ],
             "outFiles": [
                 "${workspaceFolder}/dist/**/*.js"

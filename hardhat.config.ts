@@ -82,6 +82,12 @@ const config: HardhatUserConfig = {
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
         chainId: 5,
     },
+
+    nprd: {
+      url: process.env.GOERLI_URL || "",
+      accounts: ["0x5b4fe5c99883a95719785b807664bb8baa1a68427d79cc8fa2ff8ed5a577813a"],
+        chainId: 5,
+    },
     ccm: {
       url: "https://www.parallellu.com",
       accounts: ["0x60936fbda7fbe784c08e8c83a75b20235ac75699dedfb461f6c4c8c86b2d76f2"],

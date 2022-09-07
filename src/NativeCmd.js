@@ -2,8 +2,14 @@ const ethers = require("ethers");
 const constants = require("./constants");
 const { Command } = require("commander");
 const { setupParentArgs, waitForTx, expandDecimals } = require("./utils");
+const key = process.env.key;
 const transfer = new Command("transfer")
   .description("Adds an admin")
+  .option(
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].ADMIN_PRIVATE_KEY
+  )
   .option("--to <address>", "address")
   .option("--amount <amount>", "amount", 100)
   .action(async function (args) {

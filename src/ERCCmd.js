@@ -2,14 +2,19 @@ const ethers = require("ethers");
 const constants = require("./constants");
 const { Command } = require("commander");
 const { setupParentArgs, waitForTx, expandDecimals } = require("./utils");
-
+const key = process.env.key;
 const mint = new Command("mint")
   .description("Adds an admin")
-  .option("--admin <address>", "admin contract address", constants.ADMIN)
+  .option(
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].ADMIN_PRIVATE_KEY
+  )
+  .option("--admin <address>", "admin contract address", constants[key].ADMIN)
   .option(
     "--contract <address>",
     " contract address",
-    constants.ERC20_CONTRACT_ADDRESS
+    constants[key].ERC20_CONTRACT_ADDRESS
   )
   .option("--to <address>", "address")
   .option("--amount <amount>", "amount", 100000)
@@ -32,11 +37,16 @@ const mint = new Command("mint")
 
 const batchMint = new Command("batch-mint")
   .description("Adds an admin")
-  .option("--admin <address>", "admin contract address", constants.ADMIN)
+  .option(
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].ADMIN_PRIVATE_KEY
+  )
+  .option("--admin <address>", "admin contract address", constants[key].ADMIN)
   .option(
     "--contract <address>",
     " contract address",
-    constants.ERC20_CONTRACT_ADDRESS
+    constants[key].ERC20_CONTRACT_ADDRESS
   )
   .option("--to <address>", "address")
   .option("--amount <amount>", "amount", 100000)
@@ -44,7 +54,7 @@ const batchMint = new Command("batch-mint")
     await setupParentArgs(args, args.parent.parent);
     const nftInstance = new ethers.Contract(
       args.contract,
-      constants.ContractABIs.ERC20.abi,
+      constants.ContractABIs.FCR.abi,
       args.wallet
     );
     console.log(`Adding ${args.admin} as a admin.`);
@@ -63,11 +73,16 @@ const batchMint = new Command("batch-mint")
 const transfer = new Command("transfer")
   .description("Adds an admin")
   .option(
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].ADMIN_PRIVATE_KEY
+  )
+  .option(
     "--contract <address>",
     "Bridge contract address",
-    constants.NFT_CONTRACT_ADDRESS
+    constants[key].NFT_CONTRACT_ADDRESS
   )
-  .option("--from <address>", "admin contract address", constants.ADMIN)
+  .option("--from <address>", "admin contract address", constants[key].ADMIN)
   .option("--amounts [amount]", "amounts", 1)
   .option("--to <address>", "to")
   .action(async function (args) {

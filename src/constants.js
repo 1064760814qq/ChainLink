@@ -22,9 +22,39 @@ module.exports.DEFAULT_MINT_TO = "0x9AEd59261BdF0Aa334F1790881176c7F962D4337";
 
 const CONTRACT_PATH = "../artifacts/contracts";
 const ContractABIs = {
-  NFT: require(CONTRACT_PATH + "/FreeCityGame.sol/FreeCityGame.json"),
+  NFT: require(CONTRACT_PATH + "/FreeCityGame_v2.sol/FreeCityGame_v2.json"),
   ERC20: require(CONTRACT_PATH + "/VoiceERC20.sol/VoiceERC20.json"),
+  FCR: require(CONTRACT_PATH + "/FCR.sol/FCR.json"),
   N1155: require(CONTRACT_PATH + "/VoiceBenefitCard.sol/VoiceBenefitCard.json"),
 };
+
+const nprd = {
+  ADMIN: "0x8B0dd18f72464E4732BEFc9D52a100316D8dc3F8",
+  URL: "https://goerli.infura.io/v3/ff2efa316ea244268597e5eae99a4b3d",
+  NETWORK_ID: 5,
+  FCC_CONTRACT: "0xf7A619828E0fc59c622f41Ec7373a7E4D975E0e5",
+  FCR_CONTRACT: "0x990692162F6e6E5441A427f6E3b32Af9C5E7d138",
+  NFT_CONTRACT_ADDRESS: "0x76dBfae36A5cA51Fe228E63d5A5BD006EAf8DFe4",
+  NFT_1155_ADDRESS: "",
+  ADMIN_PRIVATE_KEY:
+    "0x5b4fe5c99883a95719785b807664bb8baa1a68427d79cc8fa2ff8ed5a577813a",
+  NFT_PRIVATE_KEY:
+    "0x8c28759bec1b42efed5d902a82ed013ab4ee1acd5c907292d61a1a0338b51a4c",
+};
+const test = {
+  ADMIN: "0x9AEd59261BdF0Aa334F1790881176c7F962D4337",
+  URL: "https://goerli.infura.io/v3/ff2efa316ea244268597e5eae99a4b3d",
+  NETWORK_ID: 5,
+  FCC_CONTRACT: "0x464430850C9538D29F7Bf22F11008DEEcbE8078E",
+  FCR_CONTRACT: "0x27DFCDbb1dEa292f08E5d5713946DcF59acD2d0B",
+  NFT_CONTRACT_ADDRESS: "0x8266F2DE6e0672471267A8d864fdB6Ce5fE203a6",
+  NFT_1155_ADDRESS: "0x4ED554E4b507eF8bf8E32Cc8738dab6c225CE6B0",
+  ADMIN_PRIVATE_KEY:
+    "0x60936fbda7fbe784c08e8c83a75b20235ac75699dedfb461f6c4c8c86b2d76f2",
+  NFT_PRIVATE_KEY:
+    "0x60936fbda7fbe784c08e8c83a75b20235ac75699dedfb461f6c4c8c86b2d76f2",
+};
+module.exports.nprd = nprd;
+module.exports.test = test;
 
 module.exports.ContractABIs = ContractABIs;

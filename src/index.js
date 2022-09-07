@@ -2,18 +2,17 @@ const { Command } = require("commander");
 const program = new Command();
 const constants = require("./constants");
 
+require("dotenv").config();
 const nft = require("./NFTCmd");
 const erc = require("./ERCCmd");
 const en1155 = require("./NFT1155CMD");
 const native = require("./NativeCmd");
 
-program.option("--url <value>", "URL to connect to", constants.URL);
-program.option(
-  "--privateKey <value>",
-  "Private key to use",
-  constants.NFT_PRIVATE_KEY
-);
+const key = process.env.key;
+program.option("--url <value>", "URL to connect to", constants[key].URL);
+
 program.option("--jsonWallet <path>", "(Optional) Encrypted JSON wallet");
+
 program.option(
   "--jsonWalletPassword <value>",
   "(Optional) Password for encrypted JSON wallet"
@@ -24,7 +23,7 @@ program.option(
   "Gas limit for transactions",
   "46000000000"
 );
-program.option("--networkId <value>", "Network Id", constants.NETWORK_ID);
+program.option("--networkId <value>", "Network Id", constants[key].NETWORK_ID);
 
 program.allowUnknownOption(false);
 program.addCommand(nft);

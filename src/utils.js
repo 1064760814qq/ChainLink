@@ -14,7 +14,7 @@ const setupParentArgs = async (args, parent) => {
   args.gasLimit = ethers.utils.hexlify(Number(parent.gasLimit));
   args.gasPrice = ethers.utils.hexlify(Number(parent.gasPrice));
   if (!parent.jsonWallet) {
-    args.wallet = new ethers.Wallet(parent.privateKey, args.provider);
+    args.wallet = new ethers.Wallet(args.privateKey, args.provider);
   } else {
     const raw = fs.readFileSync(parent.jsonWallet);
     const keyfile = JSON.parse(raw);

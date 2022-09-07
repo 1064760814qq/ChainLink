@@ -2,6 +2,7 @@ const ethers = require("ethers");
 const constants = require("./constants");
 const { Command } = require("commander");
 const { setupParentArgs, waitForTx } = require("./utils");
+const key = process.env.key;
 
 const meta = require("./meta.json");
 const uri =
@@ -28,11 +29,16 @@ const uploadIpfs = new Command("uploadIpfs");
 
 const mintNft = new Command("mint-nft")
   .description("Adds an admin")
-  .option("--admin <address>", "admin contract address", constants.ADMIN)
+  .option(
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].NFT_PRIVATE_KEY
+  )
+  .option("--admin <address>", "admin contract address", constants[key].ADMIN)
   .option(
     "--contract <address>",
     "Bridge contract address",
-    constants.NFT_CONTRACT_ADDRESS
+    constants[key].NFT_CONTRACT_ADDRESS
   )
   .option("--to <address>", "address", constants.DEFAULT_MINT_TO)
   .option(
@@ -65,11 +71,16 @@ const mintNft = new Command("mint-nft")
 
 const SynthesisNft = new Command("synthesis-nft")
   .description("Adds an admin")
-  .option("--admin <address>", "admin contract address", constants.ADMIN)
+  .option(
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].NFT_PRIVATE_KEY
+  )
+  .option("--admin <address>", "admin contract address", constants[key].ADMIN)
   .option(
     "--contract <address>",
     "Bridge contract address",
-    constants.NFT_CONTRACT_ADDRESS
+    constants[key].NFT_CONTRACT_ADDRESS
   )
   .option("--p <number>", "parent", 1)
   .option("--m <number>", "mother", 2)
@@ -99,15 +110,20 @@ const SynthesisNft = new Command("synthesis-nft")
 
 const mintBatchNft = new Command("mint-batch-nft")
   .description("Adds an admin")
-  .option("--admin <address>", "admin contract address", constants.ADMIN)
+  .option(
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].NFT_PRIVATE_KEY
+  )
+  .option("--admin <address>", "admin contract address", constants[key].ADMIN)
   .option(
     "--contract <address>",
     "Bridge contract address",
-    constants.NFT_CONTRACT_ADDRESS
+    constants[key].NFT_CONTRACT_ADDRESS
   )
   .option("--id <number>", "tokenid", 1)
   .option("--end <number>", "tokenid", 20)
-  .option("--to <address>", "address", constants.DEFAULT_MINT_TO)
+  .option("--to <address>", "address", constants[key].ADMIN)
   .option("--quality <number>", "quality", 1)
   .option("--uri <value>", "uri", uri)
   .action(async function (args) {
@@ -138,9 +154,14 @@ const mintBatchNft = new Command("mint-batch-nft")
 const setTokenUri = new Command("token-uri")
   .description("Adds an admin")
   .option(
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].NFT_PRIVATE_KEY
+  )
+  .option(
     "--contract <address>",
     "Bridge contract address",
-    constants.NFT_CONTRACT_ADDRESS
+    constants[key].NFT_CONTRACT_ADDRESS
   )
   .option("--id <number>", "tokenid", 1)
   .option("--uri <value>", "uri")
@@ -168,9 +189,14 @@ const setTokenUri = new Command("token-uri")
 const transferNft = new Command("transfer-nft")
   .description("Adds an admin")
   .option(
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].NFT_PRIVATE_KEY
+  )
+  .option(
     "--contract <address>",
     "Bridge contract address",
-    constants.NFT_CONTRACT_ADDRESS
+    constants[key].NFT_CONTRACT_ADDRESS
   )
   .option("--id [number]", "id", 1)
   .option("--to <address>", "to")
@@ -196,9 +222,14 @@ const transferNft = new Command("transfer-nft")
 const burnNft = new Command("burn-nft")
   .description("Adds an admin")
   .option(
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].NFT_PRIVATE_KEY
+  )
+  .option(
     "--contract <address>",
     "Bridge contract address",
-    constants.NFT_CONTRACT_ADDRESS
+    constants[key].NFT_CONTRACT_ADDRESS
   )
   .option("--start [number]", "start", 1)
   .option("--end  [number]", "end", 70)
@@ -230,9 +261,14 @@ const burnNft = new Command("burn-nft")
 const depositNft = new Command("deposit-nft")
   .description("Adds an admin")
   .option(
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].NFT_PRIVATE_KEY
+  )
+  .option(
     "--contract <address>",
     "Bridge contract address",
-    constants.NFT_CONTRACT_ADDRESS
+    constants[key].NFT_CONTRACT_ADDRESS
   )
   .option("--id [number]", "id", 1)
   .action(async function (args) {
@@ -258,9 +294,14 @@ const depositNft = new Command("deposit-nft")
 const queryTokenUri = new Command("query")
   .description("Adds an admin")
   .option(
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].NFT_PRIVATE_KEY
+  )
+  .option(
     "--contract <address>",
     "Bridge contract address",
-    constants.NFT_CONTRACT_ADDRESS
+    constants[key].NFT_CONTRACT_ADDRESS
   )
   .option("--id <number>", "tokenid", 1)
   .action(async function (args) {
@@ -289,15 +330,21 @@ const queryTokenUri = new Command("query")
 
     //   await waitForTx(args.provider, tx.hash)
   });
+
 const withdraw = new Command("withdraw")
   .description("Adds an admin")
   .option(
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].NFT_PRIVATE_KEY
+  )
+  .option(
     "--contract <address>",
     "Bridge contract address",
-    constants.NFT_CONTRACT_ADDRESS
+    constants[key].NFT_CONTRACT_ADDRESS
   )
   .option("--id <number>", "tokenid", 1)
-  .option("--to <address>", "address", constants.ADMIN)
+  .option("--to <address>", "address", constants[key].ADMIN)
   .option("--life <number>", "life", 1)
   .option("--grade <number>", "grade", 1)
   .action(async function (args) {
@@ -325,9 +372,14 @@ const withdraw = new Command("withdraw")
 const setBaseUri = new Command("base-uri")
   .description("Adds an admin")
   .option(
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].NFT_PRIVATE_KEY
+  )
+  .option(
     "--contract <address>",
     "Bridge contract address",
-    constants.NFT_CONTRACT_ADDRESS
+    constants[key].NFT_CONTRACT_ADDRESS
   )
   .option("--id <number>", "tokenid", 1)
   .option("--baseUri <value>", "baseUri")
@@ -356,11 +408,16 @@ const setBaseUri = new Command("base-uri")
 const queryAllNft = new Command("query-all")
   .description("Adds an admin")
   .option(
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].NFT_PRIVATE_KEY
+  )
+  .option(
     "--contract <address>",
     "Bridge contract address",
-    constants.NFT_CONTRACT_ADDRESS
+    constants[key].NFT_CONTRACT_ADDRESS
   )
-  .option("--owner <address>", "address", constants.ADMIN)
+  .option("--owner <address>", "address", constants[key].ADMIN)
   .action(async function (args) {
     await setupParentArgs(args, args.parent.parent);
     const nftInstance = new ethers.Contract(
@@ -379,14 +436,49 @@ const queryAllNft = new Command("query-all")
     //   await waitForTx(args.provider, tx.hash)
   });
 
-const grantMintRole = new Command("grant-mint-role")
+const haseMintRole = new Command("query-role")
   .description("Adds an admin")
+  .option(
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].NFT_PRIVATE_KEY
+  )
   .option(
     "--contract <address>",
     "Bridge contract address",
-    constants.NFT_CONTRACT_ADDRESS
+    constants[key].NFT_CONTRACT_ADDRESS
   )
-  .option("--to <address>", "address", constants.ADMIN)
+  .action(async function (args) {
+    await setupParentArgs(args, args.parent.parent);
+    const nftInstance = new ethers.Contract(
+      args.contract,
+      constants.ContractABIs.NFT.abi,
+      args.wallet
+    );
+    console.log(`Adding ${args.admin} as a admin.`);
+
+    //   let tx1 =await nftInstance.mint(constants.ADMIN,args.id,args.amount,'0x00');
+    //   await waitForTx(args.provider, tx1.hash)
+
+    const tokens = await nftInstance.haseMintRole();
+
+    console.log("---", tokens.toString());
+    //   await waitForTx(args.provider, tx.hash)
+  });
+
+const grantMintRole = new Command("grant-mint-role")
+  .description("Adds an admin")
+  .option(
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].ADMIN_PRIVATE_KEY
+  )
+  .option(
+    "--contract <address>",
+    "Bridge contract address",
+    constants[key].NFT_CONTRACT_ADDRESS
+  )
+  .option("--to <address>", "address", constants[key].ADMIN)
   .action(async function (args) {
     await setupParentArgs(args, args.parent.parent);
     const nftInstance = new ethers.Contract(
@@ -415,6 +507,7 @@ NFTCmd.addCommand(mintBatchNft);
 NFTCmd.addCommand(transferNft);
 NFTCmd.addCommand(SynthesisNft);
 NFTCmd.addCommand(queryAllNft);
+NFTCmd.addCommand(haseMintRole);
 NFTCmd.addCommand(grantMintRole);
 NFTCmd.addCommand(withdraw);
 NFTCmd.addCommand(burnNft);
