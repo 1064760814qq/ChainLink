@@ -2,24 +2,23 @@
 pragma solidity ^0.8.0;
 
 
-import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
+
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC1155/presets/ERC1155PresetMinterPauserUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
 
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+
 
 interface FreeCity{
 function preMint(address to, uint256 quality) external;
 
 }
 
-contract VoiceBenefitCard is OwnableUpgradeable,ERC1155PresetMinterPauserUpgradeable{
+contract VoiceBenefitCard is OwnableUpgradeable,ERC1155Upgradeable{
 
     using ECDSAUpgradeable for bytes32;
     address private openSea;
 
-     
     mapping(address=>uint256)  ownTokenId;
 
     address private freeCity;
@@ -28,18 +27,25 @@ contract VoiceBenefitCard is OwnableUpgradeable,ERC1155PresetMinterPauserUpgrade
 
     mapping(uint256=>string) tokenMapUri;
 
-    uint256[5] private mintPrice;
+    mapping(uint256=>uint256) private mintPrice;
 
-    event PreMint(address,uint256,uint256);
+    uint256 private publicSalePrice;
 
-    function init() public  initializer  {
-                super.initialize("");
+    uint256 public totalSupply;
+
+    uint256 private index;
+
+    event PreMint(address,uint256[],uint256);
+
+    function init(uint256 _totalSupply,uint256[6] memory mintPrices) public  initializer  {
                  __Ownable_init();
            tokenMapUri[1]="https://vio.infura-ipfs.io/ipfs/Qmf1JQ9yN71haWAmg3Abyz2emD3Dpp7ZEwL9eTqzoJq26A/N.png";
            tokenMapUri[2]="https://vio.infura-ipfs.io/ipfs/Qmf1JQ9yN71haWAmg3Abyz2emD3Dpp7ZEwL9eTqzoJq26A/R.png";
            tokenMapUri[3]="https://vio.infura-ipfs.io/ipfs/Qmf1JQ9yN71haWAmg3Abyz2emD3Dpp7ZEwL9eTqzoJq26A/SR.png";
            tokenMapUri[4]="https://vio.infura-ipfs.io/ipfs/Qmf1JQ9yN71haWAmg3Abyz2emD3Dpp7ZEwL9eTqzoJq26A/SSR.png";
            tokenMapUri[5]="https://vio.infura-ipfs.io/ipfs/Qmf1JQ9yN71haWAmg3Abyz2emD3Dpp7ZEwL9eTqzoJq26A/UR.png";
+           totalSupply   = _totalSupply;
+           setEveryNftMintPrice(mintPrices);
     }
 
     function airdrop(address to, uint256 id,bytes32 _hash,uint8 v,bytes32 r,bytes32 s)public {
@@ -49,7 +55,7 @@ contract VoiceBenefitCard is OwnableUpgradeable,ERC1155PresetMinterPauserUpgrade
         require(ownTokenId[to]==0,"n4");
          _mint(to, id, 1, "");
          ownTokenId[to]=id;
-    }   
+    }
 
     function isApprovedToMint(bytes32 _hash, bytes memory signature) internal view returns (bool) {
        (address recovered, ECDSAUpgradeable.RecoverError error) = ECDSAUpgradeable.tryRecover(_hash, signature);
@@ -58,13 +64,11 @@ contract VoiceBenefitCard is OwnableUpgradeable,ERC1155PresetMinterPauserUpgrade
 
     function mint(
         address to,
-        uint256 id,
-        uint256 amount,
-        bytes memory data
-    ) public override  onlyOwner() {
+        uint256 id
+    ) public  onlyOwner() {
              require(id > 0 && id < 6,"id error");
              require(ownTokenId[to]==0,"only an card");
-             super.mint(to, id, 1, "");
+             _mint(to, id, 1, "");
               ownTokenId[to]=id;
     }
 
@@ -80,7 +84,7 @@ contract VoiceBenefitCard is OwnableUpgradeable,ERC1155PresetMinterPauserUpgrade
       return freeCity;
     }
 
-    function setEveryNftMintPrice(uint256[5] memory mintPrices) external onlyOwner(){
+    function setEveryNftMintPrice(uint256[6] memory mintPrices) public onlyOwner(){
         for (uint256 i = 0; i < mintPrices.length; i++) {
             mintPrice[i] = mintPrices[i];
         }
@@ -88,21 +92,35 @@ contract VoiceBenefitCard is OwnableUpgradeable,ERC1155PresetMinterPauserUpgrade
 
     function setSingleNftMintPrice(uint256 id,uint256 mintSinglePrice) external onlyOwner(){
         require(id > 0 && id < 6,"id error");
-        mintPrice[id-1] = mintSinglePrice;
+        mintPrice[id] = mintSinglePrice;
     }
 
-    function  getMintPrice() external view returns(uint256[5] memory ){
-          return mintPrice;
+    function  getMintPrice(address account) public view returns(uint256){
+        uint quality = ownTokenId[account];
+        return mintPrice[quality];
     }
 
+    function setPublicPrice(uint256 _publicSalePrice) external onlyOwner(){
+        publicSalePrice = _publicSalePrice;
+    }
 
-  function preSale(uint256 tokenId,string memory uri) public payable{
-      require(ownTokenId[msg.sender]>0 && balanceOf(msg.sender, ownTokenId[msg.sender])>0,"only an card");
-      require(msg.value == mintPrice[tokenId-1],"not  sufficient amount");
-      require(mintTotal[msg.sender]+1 <= uint8(5),"Exceeded times");
-       FreeCity(freeCity).preMint(msg.sender,ownTokenId[msg.sender]);
-       mintTotal[msg.sender] = mintTotal[msg.sender]+1;
-       emit PreMint(msg.sender,tokenId,ownTokenId[msg.sender]);
+    function setTotalSupply(uint256 _totalSupply) external onlyOwner(){
+        totalSupply = _totalSupply;
+    }
+
+    function preSale(uint[] memory qualityCategory, uint numberOfTokens) public payable{
+      require(index <= totalSupply);
+      require(qualityCategory.length == numberOfTokens);
+      require(msg.value == (getMintPrice(msg.sender) * numberOfTokens)," value error");
+      require(mintTotal[msg.sender] + numberOfTokens <= uint8(5),"Exceeded times");
+
+       for (uint256 i = 0; i < numberOfTokens; i++) {
+            FreeCity(freeCity).preMint(msg.sender,qualityCategory[i]);
+        }
+        mintTotal[msg.sender] = mintTotal[msg.sender] + numberOfTokens;
+        index = index + numberOfTokens;
+
+       emit PreMint(msg.sender,qualityCategory,numberOfTokens);
     }
     
     function withDraw(address to) public onlyOwner(){
