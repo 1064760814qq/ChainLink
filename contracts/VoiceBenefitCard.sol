@@ -11,7 +11,6 @@ import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol
 
 interface FreeCity{
 function preMint(address to, uint256 quality) external;
-
 }
 
 contract VoiceBenefitCard is OwnableUpgradeable,ERC1155Upgradeable{
@@ -19,7 +18,7 @@ contract VoiceBenefitCard is OwnableUpgradeable,ERC1155Upgradeable{
     using ECDSAUpgradeable for bytes32;
     address private openSea;
 
-    mapping(address=>uint256)  ownTokenId;
+    mapping(address=>uint256)  public ownTokenId;
 
     address private freeCity;
     
@@ -27,15 +26,19 @@ contract VoiceBenefitCard is OwnableUpgradeable,ERC1155Upgradeable{
 
     mapping(uint256=>string) tokenMapUri;
 
-    mapping(uint256=>uint256) private mintPrice;
+    // uint256[] private arrRandom;
 
-    uint256 private publicSalePrice;
+    mapping(uint256=>uint256) private arrRandom;
+
+    mapping(uint256=>uint256) private mintPrice;
 
     uint256 public totalSupply;
 
+    uint256 public flag;
+
     uint256 private index;
 
-    event PreMint(address,uint256[],uint256);
+    event PreMint(address,uint256);
 
     function init(uint256 _totalSupply,uint256[6] memory mintPrices) public  initializer  {
                  __Ownable_init();
@@ -86,7 +89,7 @@ contract VoiceBenefitCard is OwnableUpgradeable,ERC1155Upgradeable{
 
     function setEveryNftMintPrice(uint256[6] memory mintPrices) public onlyOwner(){
         for (uint256 i = 0; i < mintPrices.length; i++) {
-            mintPrice[i] = mintPrices[i];
+            mintPrice[i] = mintPrices[i] * 10 ** 16;
         }
     }
 
@@ -100,27 +103,56 @@ contract VoiceBenefitCard is OwnableUpgradeable,ERC1155Upgradeable{
         return mintPrice[quality];
     }
 
-    function setPublicPrice(uint256 _publicSalePrice) external onlyOwner(){
-        publicSalePrice = _publicSalePrice;
-    }
+
 
     function setTotalSupply(uint256 _totalSupply) external onlyOwner(){
         totalSupply = _totalSupply;
     }
 
-    function preSale(uint[] memory qualityCategory, uint numberOfTokens) public payable{
+
+    // function pushArr(uint[] memory arr) external onlyOwner(){
+    //     for(uint256 i=0;i<arr.length;i++){
+    //         arrRandom.push(arr[i]);
+    //     }
+    // }
+
+    // function getArr() public view returns(uint256[] memory){
+    //     return arrRandom;
+    // }
+
+        // function pushArr(uint[] memory arr) external onlyOwner(){
+    //     for(uint256 i=0;i<arr.length;i++){
+    //         arrRandom.push(arr[i]);
+    //     }
+    // }
+
+    function pushArr(uint[] memory arr) external onlyOwner(){
+        uint256 _index = flag;
+        for(uint256 i = 0;i < arr.length; i++){
+            arrRandom[_index + i] = arr[i];
+        }
+        flag = flag + arr.length;
+    }
+
+
+    function getArr(uint _index) public view returns(uint256){
+        return arrRandom[_index];
+    }
+
+
+
+    function preSale( uint numberOfTokens) public payable{
       require(index <= totalSupply);
-      require(qualityCategory.length == numberOfTokens);
       require(msg.value == (getMintPrice(msg.sender) * numberOfTokens)," value error");
       require(mintTotal[msg.sender] + numberOfTokens <= uint8(5),"Exceeded times");
 
        for (uint256 i = 0; i < numberOfTokens; i++) {
-            FreeCity(freeCity).preMint(msg.sender,qualityCategory[i]);
+            FreeCity(freeCity).preMint(msg.sender,arrRandom[index]);
+            index = index + 1;
         }
         mintTotal[msg.sender] = mintTotal[msg.sender] + numberOfTokens;
-        index = index + numberOfTokens;
 
-       emit PreMint(msg.sender,qualityCategory,numberOfTokens);
+       emit PreMint(msg.sender,numberOfTokens);
     }
     
     function withDraw(address to) public onlyOwner(){

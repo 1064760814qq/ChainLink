@@ -832,7 +832,7 @@ contract Auction {
         );
     }
 
-    //SPs place bid
+    //SPs place bid, bid是竞价的价格
     function placeBid(uint256 _bid, BidType _bidType) public notExpired {
         require(auctionState == AuctionState.BIDDING, "Auction not BIDDING");
         require(_bid > 0, "Bid not > 0");
@@ -1009,7 +1009,7 @@ contract Auction {
     function getBidAmount(address bidder) public view returns (uint256) {
         return bids[bidder].bidAmount;
     }
-
+    //秒杀的，直接出最高价抢购，仅限一个
     function bidFixedAuction(uint256 _bid) internal {
         require(noOfBidders == 0, "Auction Has bidded");
         require(_bid == fixedPrice, "Price not right");

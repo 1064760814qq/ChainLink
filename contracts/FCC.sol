@@ -1,14 +1,45 @@
-// SPDX-License-Identifier:MIT
-pragma solidity ^0.8.1;
-
-import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 
+import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
-contract FCC is ERC20, Ownable {
 
+contract FCC is
+    Initializable,
+    ContextUpgradeable,
+    AccessControlEnumerableUpgradeable,
+    ERC20Upgradeable,
+    ERC20BurnableUpgradeable,
+    ERC20PausableUpgradeable,
+    ReentrancyGuardUpgradeable
+{
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+
+
+
+    function initialize(string memory name, string memory symbol)
+        public
+        virtual
+        initializer
+    {
+
+        __ERC20_init(name,symbol);
+        __ERC20Pausable_init();
+
+        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+        _setupRole(MINTER_ROLE, _msgSender());
+        _setupRole(PAUSER_ROLE, _msgSender());
+
+        _mint(_msgSender(),100 *10**8 * 10**decimals());
+
+    }
 
     event Withdraw(address user, uint256 amount);
 
@@ -16,28 +47,31 @@ contract FCC is ERC20, Ownable {
     receive() external payable {}
 
 
-    function withdraw() public onlyOwner {
+    function withdraw() public onlyRole(DEFAULT_ADMIN_ROLE) {
         payable(msg.sender).transfer(address(this).balance);
         emit Withdraw(msg.sender,(address(this).balance));
     }
 
-    function withdrawToken(IERC20 token) public onlyOwner {
+    function withdrawToken(IERC20Upgradeable token) public onlyRole(DEFAULT_ADMIN_ROLE) nonReentrant{
         token.transfer(msg.sender, token.balanceOf(address(this)));
         emit Withdraw(msg.sender,token.balanceOf(address(this)));
     }
 
-    function burn(uint256 amount) public virtual {
+    function burn(uint256 amount) public override(ERC20BurnableUpgradeable) {
         super._burn(_msgSender(), amount);
     }
 
-
-    constructor() ERC20("FCC", "FCC") {
-        _mint(owner(), 100 *10**8 * 10**decimals());
+    function grantMintRole(address to) external {
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "n1");
+        _grantRole(MINTER_ROLE, to);
     }
+
+
 
     function BatchTransfer(address[] memory accounts, uint256[] memory amounts)
         public
-        onlyOwner
+        onlyRole(MINTER_ROLE)
+        nonReentrant
     {
         require(accounts.length == amounts.length,"length is invalid");
         for (uint256 index = 0; index < accounts.length; index++) {
@@ -45,6 +79,41 @@ contract FCC is ERC20, Ownable {
         }
     }
 
+
+
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId
+    )
+        internal
+        override(
+            ERC20Upgradeable,
+            ERC20PausableUpgradeable
+        )
+    {
+        super._beforeTokenTransfer(from, to, tokenId);
+        require(!paused(), "pause tx");
+    }
+
+    /**
+     * @dev Hook that is called after any transfer of tokens. This includes
+     * minting and burning.
+     *
+     * Calling conditions:
+     *
+     * - when `from` and `to` are both non-zero.
+     * - `from` and `to` are never both zero.
+     *
+     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
+     */
+    function _afterTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal override {}
+
+    uint256[48] private __gap;
 
 
 }

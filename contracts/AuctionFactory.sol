@@ -15,7 +15,7 @@ contract AuctionFactory {
     constructor(address _admin) {
         admin = _admin;
     }
-
+    //创建拍卖合约
     function createAuction(
         IERC20 _paymentToken,
         uint256 _minPrice,
