@@ -17,10 +17,11 @@ contract Counter is KeeperCompatibleInterface,Ownable {
     * Public counter variable
     */
     uint public counter;
-    bool public state;
-    bool public dataHowToCall;
+    bool public stateExec;
+    bool public haveVRFData;
+    bool public haveData;
 
-    address public VRF;
+    address public VRFORDES;
     bytes private execData;
 
     /**
@@ -32,56 +33,59 @@ contract Counter is KeeperCompatibleInterface,Ownable {
     constructor(uint updateInterval,address _VRFORDES) {
       interval = updateInterval;
       lastTimeStamp = block.timestamp;
-      VRF = _VRFORDES;
+      VRFORDES = _VRFORDES;
       counter = 0;
+      stateExec = true;
     }
 
     function setInterval(uint updateInterval) public onlyOwner{
         interval = updateInterval;
     }
 
-    function stateSwitch(bool _state,bool _dataHowToCall) public onlyOwner{
-        state = _state;
-        dataHowToCall = _dataHowToCall;
+    function setDesAddress(address _VRFORDES) public onlyOwner {
+        VRFORDES =  _VRFORDES;
     }
 
-    function requestData(address buyer, uint tokenId,string memory _tokenURI)
-        internal
-        pure
-        returns(bytes memory)
-    {
-        return abi.encodeWithSignature("requestRandomWords(address,uint256,string)", buyer, tokenId,_tokenURI);
+    function stateSwitch(bool _stateExec,bool _haveVRFData, bool _haveData) public onlyOwner{
+        stateExec = _stateExec;
+        haveVRFData = _haveVRFData;
+        haveData = _haveData;
     }
+
 
     function setData(bytes memory data) public onlyOwner {
         execData = data;
     }
 
 
-    function callExecute(address dest,bytes memory data)
+    function executeVRF()
     internal
     returns (bool result)
     {
         bytes memory tmp;
-        (result, tmp) = dest.call(data);
+        (result, tmp) = VRFORDES.call(abi.encodeWithSignature("requestRandomWords()"));
         return result;
     }
 
 
     function checkUpkeep(bytes calldata /* checkData */) external view override returns (bool upkeepNeeded, bytes memory /* performData */) {
-        upkeepNeeded = (( (block.timestamp - lastTimeStamp) > interval) && state);
+        upkeepNeeded = (( (block.timestamp - lastTimeStamp) > interval) && stateExec);
         // We don't use the checkData in this example. The checkData is defined when the Upkeep was registered.
     }
 
     function performUpkeep(bytes calldata /* performData */) external override {
         //We highly recommend revalidating the upkeep in the performUpkeep function
-        if (( (block.timestamp - lastTimeStamp) > interval) && state) {
+        if (( (block.timestamp - lastTimeStamp) > interval) && stateExec) {
+            if(haveData){
+                if(haveVRFData){
+                    executeVRF();
+                }
+                else  {
+                    bool result;
+                   (result,) = VRFORDES.call(execData);
+                    }
+            }
             
-
-
-
-
-
             lastTimeStamp = block.timestamp;
             counter = counter + 1;
         }
