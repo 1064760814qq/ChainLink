@@ -1,6 +1,29 @@
 const ethers = require("ethers");
+const fs = require("fs");
 
-
+const setupParentArgs = async (args, parent) => {
+  args.url = parent.url;
+  if (!parent.networkId) {
+    args.provider = new ethers.providers.JsonRpcProvider(args.url);
+  } else {
+    args.provider = new ethers.providers.JsonRpcProvider(args.url, {
+      name: "custom",
+      chainId: Number(parent.networkId),
+    });
+  }
+  // args.gasLimit = ethers.utils.hexlify(Number(parent.gasLimit));
+  // args.gasPrice = ethers.utils.hexlify(Number(parent.gasPrice));
+  if (!parent.jsonWallet) {
+    args.wallet = new ethers.Wallet(parent.privateKey, args.provider);
+  } else {
+    const raw = fs.readFileSync(parent.jsonWallet);
+    const keyfile = JSON.parse(raw);
+    args.wallet = await ethers.Wallet.fromEncryptedJson(
+      keyfile,
+      parent.jsonWalletPassword
+    );
+  }
+};
 
 const splitCommaList = (str) => {
   return str.split(",");
@@ -41,6 +64,7 @@ const log = (args, msg) =>
   console.log(`[${args.parent._name}/${args._name}] ${msg}`);
 
 module.exports = {
+  setupParentArgs,
   splitCommaList,
   getFunctionBytes,
   waitForTx,

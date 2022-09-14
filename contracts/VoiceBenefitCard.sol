@@ -89,7 +89,7 @@ contract VoiceBenefitCard is OwnableUpgradeable,ERC1155Upgradeable{
 
     function setEveryNftMintPrice(uint256[6] memory mintPrices) public onlyOwner(){
         for (uint256 i = 0; i < mintPrices.length; i++) {
-            mintPrice[i] = mintPrices[i] * 10 ** 16;
+            mintPrice[i] = mintPrices[i];
         }
     }
 
