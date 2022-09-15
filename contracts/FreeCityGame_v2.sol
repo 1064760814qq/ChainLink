@@ -393,17 +393,17 @@ contract FreeCityGame_v2 is
     //     safeTransferFrom(msg.sender, to, _tokenId);
     // }
 
-    function transferFrom(address from,address to, uint256 _tokenId) public override(ERC721Upgradeable){
+    function transferFrom(address from,address to, uint256 _tokenId) public override(ERC721Upgradeable, IERC721Upgradeable){
         require(freeCityPool[_tokenId] == false, "n1");
         ERC721Upgradeable.transferFrom(from, to, _tokenId);
     }
 
-    function safeTransferFrom(address from,address to, uint256 _tokenId) public override(ERC721Upgradeable){
+    function safeTransferFrom(address from,address to, uint256 _tokenId) public override(ERC721Upgradeable, IERC721Upgradeable){
         require(freeCityPool[_tokenId] == false, "n1");
         ERC721Upgradeable.safeTransferFrom(from, to, _tokenId);
     }
 
-    function safeTransferFrom(address from,address to, uint256 _tokenId, bytes memory data) public override(ERC721Upgradeable){
+    function safeTransferFrom(address from,address to, uint256 _tokenId, bytes memory data) public override(ERC721Upgradeable, IERC721Upgradeable){
         require(freeCityPool[_tokenId] == false, "n1");
         ERC721Upgradeable.safeTransferFrom(from, to, _tokenId, data);
     }
@@ -444,7 +444,7 @@ contract FreeCityGame_v2 is
     function isApprovedForAll(address _owner, address _operator)
         public
         view
-        override(ERC721Upgradeable)
+        override(ERC721Upgradeable, IERC721Upgradeable)
         returns (bool isOperator)
     {
         // if OpenSea's ERC721 Proxy Address is detected, auto-return true

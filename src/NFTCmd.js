@@ -405,6 +405,40 @@ const setBaseUri = new Command("base-uri")
     //   await waitForTx(args.provider, tx.hash)
   });
 
+ const updateUri = new Command("update-uri")
+  .description("Adds an admin")
+  .option(
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].NFT_PRIVATE_KEY
+  )
+  .option(
+    "--contract <address>",
+    "Bridge contract address",
+    constants[key].NFT_CONTRACT_ADDRESS
+  )
+  .option("--id <number>", "tokenid", 1)
+  .option("--baseUri <value>", "baseUri")
+  .action(async function (args) {
+    await setupParentArgs(args, args.parent.parent);
+    const nftInstance = new ethers.Contract(
+      args.contract,
+      constants.ContractABIs.NFT.abi,
+      args.wallet
+    );
+    console.log(`Adding ${args.admin} as a admin.`);
+
+    //   let tx1 =await nftInstance.mint(constants.ADMIN,args.id,args.amount,'0x00');
+    //   await waitForTx(args.provider, tx1.hash)
+
+    const tx1 = await nftInstance.updateTokenUri(args.id, args.baseUri);
+    await waitForTx(args.provider, tx1.hash);
+
+    const uri = await nftInstance.tokenURI(args.id);
+    console.log("---", uri);
+    //   await waitForTx(args.provider, tx.hash)
+  });
+
 const queryAllNft = new Command("query-all")
   .description("Adds an admin")
   .option(
@@ -511,4 +545,5 @@ NFTCmd.addCommand(haseMintRole);
 NFTCmd.addCommand(grantMintRole);
 NFTCmd.addCommand(withdraw);
 NFTCmd.addCommand(burnNft);
+NFTCmd.addCommand(updateUri);
 module.exports = NFTCmd;

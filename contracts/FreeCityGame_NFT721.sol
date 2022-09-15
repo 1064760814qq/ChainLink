@@ -158,7 +158,7 @@ contract FreeCity721 is
     function isApprovedForAll(address _owner, address _operator)
         public
         view
-        override(ERC721Upgradeable)
+        override(ERC721Upgradeable, IERC721Upgradeable)
         returns (bool isOperator)
     {
         // if OpenSea's ERC721 Proxy Address is detected, auto-return true
