@@ -219,7 +219,7 @@ contract FreeCityGame_v2 is
         emit Open(curblindBoxIndex, blindBoxTotal);
     }
 
-   
+
     function openAllBox(string memory _tokenUrl)
         external
         onlyRole(MINTER_ROLE)
