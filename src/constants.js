@@ -67,8 +67,21 @@ const test = {
   NFT_PRIVATE_KEY:
     "0x60936fbda7fbe784c08e8c83a75b20235ac75699dedfb461f6c4c8c86b2d76f2",
 };
+const test2 = {
+  ADMIN: "0x9AEd59261BdF0Aa334F1790881176c7F962D4337",
+  URL: "https://goerli.infura.io/v3/6b1c0a034c7b40eda30bbc26714afea5",
+  NETWORK_ID: 5,
+  NFT_CONTRACT_ADDRESS: "0xf44eF13951425Ea69036cDe54F1440633d170965",
+  NFT_1155_ADDRESS: "0x20C52930AD564dba3777578C10864435b6676c63",
+  ADMIN_PRIVATE_KEY:
+    "0x60936fbda7fbe784c08e8c83a75b20235ac75699dedfb461f6c4c8c86b2d76f2",
+  NFT_PRIVATE_KEY:
+    "0x60936fbda7fbe784c08e8c83a75b20235ac75699dedfb461f6c4c8c86b2d76f2",
+};
+
 module.exports.nprd = nprd;
 module.exports.test = test;
 module.exports.pology = pology;
+module.exports.test2 = test2;
 
 module.exports.ContractABIs = ContractABIs;

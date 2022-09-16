@@ -1,31 +1,31 @@
 const ethers = require("ethers");
 const constants = require("./constants");
 const { Command } = require("commander");
-const { setupParentArgs, waitForTx, expandDecimals } = require("./utils");
+const { setupParentArgs, waitForTx } = require("./utils");
 const key = process.env.key;
-function sleep(duration) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, duration);
-  });
-}
+
 const mintNft = new Command("mint-nft")
-  .description("Adds an admin")
+  .description("MINT NFT")
+  .option(
+    "--contract <address>",
+    "NFT1155 contract address",
+    constants[key].NFT_1155_ADDRESS
+  )
+  .option("--url <value>", "URL to connect to", constants.URL)
   .option(
     "--privateKey <value>",
     "Private key to use",
-    constants[key].ADMIN_PRIVATE_KEY
+    constants[key].NFT_PRIVATE_KEY
   )
-  .option("--admin <address>", "admin contract address", constants[key].ADMIN)
+  .option("--id <number>", "tokenId", 2)
   .option(
-    "--contract <address>",
-    "Bridge contract address",
-    constants[key].NFT_1155_ADDRESS
+    "--to <address>",
+    "addr",
+    "0xF94e4af78b3f222fa0F8Be0F47b6Ec6960866E0b"
   )
-  .option("--id <number>", "tokenId", 1)
-  .option("--uri <value>", "uri")
-  .option("--amount <amount>", "amount", 100)
   .action(async function (args) {
-    await setupParentArgs(args, args.parent.parent);
+    console.log(args);
+    await setupParentArgs(args, args);
     const nftInstance = new ethers.Contract(
       args.contract,
       constants.ContractABIs.N1155.abi,
@@ -59,239 +59,181 @@ const mintNft = new Command("mint-nft")
     console.log("---", tx);
     //   await waitForTx(args.provider, tx.hash)
   });
-const mintBatchNft = new Command("mint-batch-nft")
-  .description("Adds an admin")
-  .option("--admin <address>", "admin contract address", constants.ADMIN)
+const setEveryNftMintPrice = new Command("set-price")
+  .description("Set sale price")
   .option(
     "--contract <address>",
-    "Bridge contract address",
-    constants.CONTRACT_ADDRESS
+    "NFT1155 contract address",
+    constants[key].NFT_1155_ADDRESS
   )
-  .option("--id <number>", "tokenid", 1)
-  .option("--end <number>", "tokenid", 20)
-  .option("--amount <amount>", "amount", 100)
-  .action(async function (args) {
-    await setupParentArgs(args, args.parent.parent);
-
-    const nftInstance = new ethers.Contract(
-      args.contract,
-      constants.ContractABIs.NFT.abi,
-      args.wallet
-    );
-    console.log(`Adding ${args.admin} as a admin.`);
-    let i = args.id * 1;
-    while (i <= args.end * 1) {
-      await (async function (i) {
-        await sleep(2000);
-        const tx1 = await nftInstance.mint(
-          constants.ADMIN,
-          i,
-          args.amount,
-          "0x00"
-        );
-        await waitForTx(args.provider, tx1.hash);
-
-        const tx2 = await nftInstance.setURI(i, i + ".png");
-        await waitForTx(args.provider, tx2.hash);
-        //   let tx1 =await nftInstance.mint(constants.ADMIN,1,100,'0x00');
-        //   await waitForTx(args.provider, tx1.hash)
-        const uri = await nftInstance.uri(i);
-        console.log("---", uri);
-        const tx = await nftInstance.balanceOf(constants.ADMIN, i);
-        console.log("---", tx);
-      })(i);
-      i++;
-    }
-
-    //   await waitForTx(args.provider, tx.hash)
-  });
-
-const setTokenUri = new Command("token-uri")
-  .description("Adds an admin")
+  .option("--url <value>", "URL to connect to", constants.URL)
   .option(
-    "--contract <address>",
-    "Bridge contract address",
-    constants.CONTRACT_ADDRESS
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].NFT_PRIVATE_KEY
   )
-  .option("--id <number>", "tokenid", 1)
-  .option("--uri <value>", "uri")
+  .option("--price <number>", "price", [200, 190, 180, 170, 160, 150])
   .action(async function (args) {
-    await setupParentArgs(args, args.parent.parent);
-    const nftInstance = new ethers.Contract(
-      args.contract,
-      constants.ContractABIs.NFT.abi,
-      args.wallet
-    );
-    console.log(`Adding ${args.contract} as a admin.`);
+    await setupParentArgs(args, args);
 
-    //   let tx1 =await nftInstance.mint(constants.ADMIN,args.id,args.amount,'0x00');
-    //   await waitForTx(args.provider, tx1.hash)
-
-    const tx1 = await nftInstance.setURI(args.id, args.uri);
-    await waitForTx(args.provider, tx1.hash);
-
-    const uri = await nftInstance.uri(args.id);
-    console.log("---", uri);
-    const tx = await nftInstance.balanceOf(constants.ADMIN, args.id);
-    console.log("---", tx);
-    //   await waitForTx(args.provider, tx.hash)
-  });
-
-const queryBalance = new Command("query-balance")
-  .description("Adds an admin")
-  .option(
-    "--contract <address>",
-    "Bridge contract address",
-    constants.NFT_1155_ADDRESS
-  )
-  .option("--address [address]", "address", constants.ADMIN)
-  .option("--id [number]", "id", 1)
-  .action(async function (args) {
-    await setupParentArgs(args, args.parent.parent);
     const nftInstance = new ethers.Contract(
       args.contract,
       constants.ContractABIs.N1155.abi,
       args.wallet
     );
-    console.log(`Adding ${args.address} as a admin.`);
 
-    //   let tx1 =await nftInstance.mint(constants.ADMIN,args.id,args.amount,'0x00');
-    //   await waitForTx(args.provider, tx1.hash)
-    const balance = await nftInstance.balanceOf(args.address, args.id);
-    console.log("---", balance);
-    //   await waitForTx(args.provider, tx.hash)
+    const setNftMintPrice = await nftInstance.setEveryNftMintPrice(args.price);
+    await waitForTx(args.provider, setNftMintPrice.hash);
+    const mintPrice = await nftInstance.getMintPrice(constants.ACCOUNT);
+    console.log("---mintPrice:", mintPrice);
   });
 
-const setMintAmount = new Command("set-MintAmount")
-  .description("Adds an admin")
+const setTotal = new Command("set-total")
+  .description("Set Total Supply")
   .option(
     "--contract <address>",
-    "Bridge contract address",
-    constants.NFT_1155_ADDRESS
+    "NFT1155 contract address",
+    constants[key].NFT_1155_ADDRESS
   )
-  .option("--amount <amount>", "amount", 102)
+  .option("--url <value>", "URL to connect to", constants.URL)
+  .option(
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].NFT_PRIVATE_KEY
+  )
+  .option("--total <number>", "totalSupply", 2000)
   .action(async function (args) {
-    await setupParentArgs(args, args.parent.parent);
+    await setupParentArgs(args, args);
+
     const nftInstance = new ethers.Contract(
       args.contract,
       constants.ContractABIs.N1155.abi,
       args.wallet
     );
-    console.log(`Adding ${args.amount} as a admin.`);
 
-    //   let tx1 =await nftInstance.mint(constants.ADMIN,args.id,args.amount,'0x00');
-    //   await waitForTx(args.provider, tx1.hash)
-    const balance = await nftInstance.setMintAmount(
-      expandDecimals(args.amount, 18)
-    );
-    console.log("---", balance);
-    //   await waitForTx(args.provider, tx.hash)
+    const setTotalSupply = await nftInstance.setTotalSupply(args.total);
+    await waitForTx(args.provider, setTotalSupply.hash);
+    const totalSupply = await nftInstance.totalSupply();
+    console.log("---totalSupply:", totalSupply);
   });
 
-const transferNft = new Command("transfer-nft")
-  .description("Adds an admin")
+const setFreeCityContract = new Command("set-free-city")
+  .description("Set FreeCity Contract")
   .option(
     "--contract <address>",
-    "Bridge contract address",
-    constants.CONTRACT_ADDRESS
+    "NFT1155 contract address",
+    constants[key].NFT_1155_ADDRESS
   )
-  .option("--ids [number]", "ids", 1)
-  .option("--from <address>", "admin contract address", constants.ADMIN)
-  .option("--amounts [amount]", "amounts", 1)
-  .option("--to <address>", "to")
+  .option("--url <value>", "URL to connect to", constants.URL)
+  .option(
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].NFT_PRIVATE_KEY
+  )
+  .option("--total <number>", "totalSupply", 2000)
   .action(async function (args) {
-    await setupParentArgs(args, args.parent.parent);
+    await setupParentArgs(args, args);
+
     const nftInstance = new ethers.Contract(
       args.contract,
       constants.ContractABIs.N1155.abi,
       args.wallet
     );
-    console.log(`Adding ${args.contract} as a admin.`);
 
-    //   let tx1 =await nftInstance.mint(constants.ADMIN,args.id,args.amount,'0x00');
-    //   await waitForTx(args.provider, tx1.hash)
-    const tx1 = await nftInstance.safeTransferFrom(
-      args.from,
-      args.to,
-      args.ids,
-      args.amounts,
-      "0x00"
-    );
-    await waitForTx(args.provider, tx1.hash);
-
-    const tx = await nftInstance.balanceOf(args.to, args.ids);
-    console.log("---", tx);
-    //   await waitForTx(args.provider, tx.hash)
+    const setTotalSupply = await nftInstance.setFreeCityContract(args.total);
+    await waitForTx(args.provider, setTotalSupply.hash);
   });
 
-const queryTokenUri = new Command("query-uri")
-  .description("Adds an admin")
+const pushArr = new Command("push-arr")
+  .description("push random arr")
   .option(
     "--contract <address>",
-    "Bridge contract address",
-    constants.CONTRACT_ADDRESS
+    "NFT1155 contract address",
+    constants[key].NFT_1155_ADDRESS
   )
-  .option("--id <number>", "tokenid", 1)
+  .option("--url <value>", "URL to connect to", constants.URL)
+  .option(
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].NFT_PRIVATE_KEY
+  )
+  .option("--arr [number]", "Random Arr", [1, 2, 1, 1, 2, 1, 1])
   .action(async function (args) {
-    await setupParentArgs(args, args.parent.parent);
+    await setupParentArgs(args, args);
+
     const nftInstance = new ethers.Contract(
       args.contract,
-      constants.ContractABIs.NN1155FT.abi,
+      constants.ContractABIs.N1155.abi,
       args.wallet
     );
-    console.log(`Adding ${args.admin} as a admin.`);
 
-    //   let tx1 =await nftInstance.mint(constants.ADMIN,args.id,args.amount,'0x00');
-    //   await waitForTx(args.provider, tx1.hash)
-
-    //   let tx1 =await nftInstance.setURI(args.id,args.uri);
-    //   await waitForTx(args.provider, tx1.hash)
-
-    const uri = await nftInstance.uri(args.id);
-    console.log("---", uri);
-    const tx = await nftInstance.balanceOf(constants.ADMIN, args.id);
-    console.log("---", tx);
-    //   await waitForTx(args.provider, tx.hash)
+    const pushArr = await nftInstance.pushArr(args.arr);
+    await waitForTx(args.provider, pushArr.hash);
+    const Arr2 = await nftInstance.getArr(2);
+    console.log("---Arr2:", Arr2);
   });
 
-const setBaseUri = new Command("base-uri")
-  .description("Adds an admin")
+const withDraw = new Command("withDraw")
+  .description("withDraw Funds")
   .option(
     "--contract <address>",
-    "Bridge contract address",
-    constants.CONTRACT_ADDRESS
+    "NFT1155 contract address",
+    constants[key].NFT_1155_ADDRESS
   )
-  .option("--id <number>", "tokenid", 1)
-  .option("--baseUri <value>", "baseUri")
+  .option("--url <value>", "URL to connect to", constants.URL)
+  .option(
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].NFT_PRIVATE_KEY
+  )
+  .option("--to <address>", "withDraw Arr", constants.ACCOUNT)
   .action(async function (args) {
-    await setupParentArgs(args, args.parent.parent);
+    await setupParentArgs(args, args);
+
     const nftInstance = new ethers.Contract(
       args.contract,
-      constants.ContractABIs.NFT.abi,
+      constants.ContractABIs.N1155.abi,
       args.wallet
     );
-    console.log(`Adding ${args.admin} as a admin.`);
 
-    //   let tx1 =await nftInstance.mint(constants.ADMIN,args.id,args.amount,'0x00');
-    //   await waitForTx(args.provider, tx1.hash)
+    const withDraw = await nftInstance.withDraw(args.to);
+    await waitForTx(args.provider, withDraw.hash);
+  });
 
-    const tx1 = await nftInstance.setBaseUri(args.baseUri);
-    await waitForTx(args.provider, tx1.hash);
+const setOpenSea = new Command("set-opensea")
+  .description("set OpenSea")
+  .option(
+    "--contract <address>",
+    "NFT1155 contract address",
+    constants[key].NFT_1155_ADDRESS
+  )
+  .option("--url <value>", "URL to connect to", constants.URL)
+  .option(
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].NFT_PRIVATE_KEY
+  )
+  .option("--to <address>", "set opensea", "0x00")
+  .action(async function (args) {
+    await setupParentArgs(args, args);
 
-    const uri = await nftInstance.uri(args.id);
-    console.log("---", uri);
-    const tx = await nftInstance.balanceOf(constants.ADMIN, args.id);
-    console.log("---", tx);
-    //   await waitForTx(args.provider, tx.hash)
+    const nftInstance = new ethers.Contract(
+      args.contract,
+      constants.ContractABIs.N1155.abi,
+      args.wallet
+    );
+
+    const setOpenSea = await nftInstance.setOpenSea(args.to);
+    await waitForTx(args.provider, setOpenSea.hash);
   });
 
 const adminCmd = new Command("NNFT");
 adminCmd.addCommand(mintNft);
-adminCmd.addCommand(setTokenUri);
-adminCmd.addCommand(setBaseUri);
-adminCmd.addCommand(queryTokenUri);
-adminCmd.addCommand(queryBalance);
-adminCmd.addCommand(setMintAmount);
-adminCmd.addCommand(mintBatchNft);
-adminCmd.addCommand(transferNft);
+adminCmd.addCommand(setEveryNftMintPrice);
+adminCmd.addCommand(setTotal);
+adminCmd.addCommand(setFreeCityContract);
+adminCmd.addCommand(pushArr);
+adminCmd.addCommand(withDraw);
+adminCmd.addCommand(setOpenSea);
+
 module.exports = adminCmd;
