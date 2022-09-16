@@ -2,7 +2,7 @@ const ethers = require("ethers");
 const constants = require("./constants");
 const { Command } = require("commander");
 const { setupParentArgs, waitForTx, expandDecimals } = require("./utils");
-
+const key = process.env.key;
 function sleep(duration) {
   return new Promise((resolve) => {
     setTimeout(resolve, duration);
@@ -11,14 +11,15 @@ function sleep(duration) {
 const mintNft = new Command("mint-nft")
   .description("Adds an admin")
   .option(
-    "--admin <address>",
-    "admin contract address",
-    constants.NFT_MINT_ADDRESS
+    "--privateKey <value>",
+    "Private key to use",
+    constants[key].ADMIN_PRIVATE_KEY
   )
+  .option("--admin <address>", "admin contract address", constants[key].ADMIN)
   .option(
     "--contract <address>",
     "Bridge contract address",
-    constants.NFT_1155_ADDRESS
+    constants[key].NFT_1155_ADDRESS
   )
   .option("--id <number>", "tokenId", 1)
   .option("--uri <value>", "uri")
@@ -33,21 +34,27 @@ const mintNft = new Command("mint-nft")
 
     console.log(`Adding ${args.admin} as a admin.`);
     // const uri1 = await nftInstance.uri(args.id);
+
     // console.log("---", uri1);
     const tx1 = await nftInstance.airdrop(
-      "0x6f95718d05333cddc92f39aec83c1f4ecb832d9e",
+      "0x3a01248aAE0711440676E47F2262f51080f9E37d",
       2,
-      "0xce49fe220bf580a8ad76c0da4036ad222e01a0293060737241ed12a7308b6dd5",
+      "0xbbf8cc9494f4662b8638f5eedaa6ea0e49108e49d5cb63c7868a4b77fd96108f",
       "0x1c",
-      "0xf38ed7d33ceeaf44947a9d9e1cb99c2da4821e7a9318369e81e5abedc806e1f1",
-      "0x740fddf587b1304cfba648f694b30b2b02a5db859c986647373fe1521a273c80"
+      "0x2a023d33331c3e1831028d5b7914b34278be86b09e429fb1e1a9b767da0f4dee",
+      "0x5f1d78dfd8fb08c8c6b0216b5e761a53e5e82890bfcb8d70d9b618e4cec067ba",
+      {
+        // The maximum units of gas for the transaction to use
+        gasLimit: 2300000,
+
+        // The price (in wei) per unit of gas
+        gasPrice: ethers.utils.parseUnits("1900.0", "gwei"),
+      }
     );
     await waitForTx(args.provider, tx1.hash);
     //   let tx1 =await nftInstance.mint(constants.ADMIN,1,100,'0x00');
     //   await waitForTx(args.provider, tx1.hash)
 
-    const uri = await nftInstance.tokenURI(args.id);
-    console.log("---", uri);
     const tx = await nftInstance.balanceOf(constants.ADMIN, args.id);
     console.log("---", tx);
     //   await waitForTx(args.provider, tx.hash)
@@ -130,7 +137,6 @@ const setTokenUri = new Command("token-uri")
     //   await waitForTx(args.provider, tx.hash)
   });
 
-  
 const queryBalance = new Command("query-balance")
   .description("Adds an admin")
   .option(

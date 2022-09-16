@@ -27,6 +27,19 @@ const ContractABIs = {
   FCR: require(CONTRACT_PATH + "/FCR.sol/FCR.json"),
   N1155: require(CONTRACT_PATH + "/VoiceBenefitCard.sol/VoiceBenefitCard.json"),
 };
+const pology = {
+  ADMIN: "0x8B0dd18f72464E4732BEFc9D52a100316D8dc3F8",
+  URL: "https://polygon-mainnet.infura.io/v3/ff2efa316ea244268597e5eae99a4b3d",
+  NETWORK_ID: 137,
+  FCC_CONTRACT: "0xf7A619828E0fc59c622f41Ec7373a7E4D975E0e5",
+  FCR_CONTRACT: "0x990692162F6e6E5441A427f6E3b32Af9C5E7d138",
+  NFT_CONTRACT_ADDRESS: "0x76dBfae36A5cA51Fe228E63d5A5BD006EAf8DFe4",
+  NFT_1155_ADDRESS: "0xD4e6EA5fA471f6EA43ce9Fdd8F1632ffAD54f52F",
+  ADMIN_PRIVATE_KEY:
+    "0x5b4fe5c99883a95719785b807664bb8baa1a68427d79cc8fa2ff8ed5a577813a",
+  NFT_PRIVATE_KEY:
+    "0x8c28759bec1b42efed5d902a82ed013ab4ee1acd5c907292d61a1a0338b51a4c",
+};
 
 const nprd = {
   ADMIN: "0x8B0dd18f72464E4732BEFc9D52a100316D8dc3F8",
@@ -35,7 +48,7 @@ const nprd = {
   FCC_CONTRACT: "0xf7A619828E0fc59c622f41Ec7373a7E4D975E0e5",
   FCR_CONTRACT: "0x990692162F6e6E5441A427f6E3b32Af9C5E7d138",
   NFT_CONTRACT_ADDRESS: "0x76dBfae36A5cA51Fe228E63d5A5BD006EAf8DFe4",
-  NFT_1155_ADDRESS: "",
+  NFT_1155_ADDRESS: "0xD4e6EA5fA471f6EA43ce9Fdd8F1632ffAD54f52F",
   ADMIN_PRIVATE_KEY:
     "0x5b4fe5c99883a95719785b807664bb8baa1a68427d79cc8fa2ff8ed5a577813a",
   NFT_PRIVATE_KEY:
@@ -56,5 +69,6 @@ const test = {
 };
 module.exports.nprd = nprd;
 module.exports.test = test;
+module.exports.pology = pology;
 
 module.exports.ContractABIs = ContractABIs;

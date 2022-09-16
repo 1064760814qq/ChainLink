@@ -21,7 +21,7 @@ program.option("--gasLimit <value>", "Gas limit for transactions", "610000");
 program.option(
   "--gasPrice <value>",
   "Gas limit for transactions",
-  "46000000000"
+  "460000000000"
 );
 program.option("--networkId <value>", "Network Id", constants[key].NETWORK_ID);
 
