@@ -37,28 +37,17 @@ contract FreeCityGame_v2 is
         address creator;
         string tokenURI;
     }
-    struct Claim {
-        address to;
-        uint256 tokenId;
-        uint256 end;
-    }
     uint256 public constant MAXMINTLIMIT = 8;
     //tokenId => token 属性
     mapping(uint256 => VoiceAttr) private voiceAttrs;
 
     mapping(uint256 => bool) private freeCityPool;
 
-    mapping(uint256 => Claim) private claims;
-        address proxyRegistryAddress;
 
     // tokenid =>hash
 
-    mapping(uint256 => string) private _tokenURIs;
-
     mapping(address => bool) public isAllowlistAddress;
     //预售
-
-    mapping(address => VoiceAttr) private preSales;
 
     address private openSea;
     address private whilteAddress;
@@ -79,10 +68,8 @@ contract FreeCityGame_v2 is
     CountersUpgradeable.Counter private _tokenIdTracker;
     event Deposit(address indexed, uint256 indexed, uint256);
     event Exchange(address indexed, address indexed, uint256);
-    event Mint(address indexed, address indexed, uint256);
     event Synthesis(uint256 indexed, uint256, uint256);
     event Withdraw(address indexed, uint256);
-    event Find(address indexed, address indexed, uint256);
     event Open(uint256 indexed, uint256);
     event StartBlind(uint256 indexed, uint256 indexed, string);
     event BatchMint(uint256 indexed);
@@ -140,20 +127,6 @@ contract FreeCityGame_v2 is
             isAllowlistAddress[wAddresses[i]] = true;
         }
     }
-
-    function ____Voice721_init_init_unchained(
-        string memory,
-        string memory,
-        string memory baseTokenURI
-    ) internal onlyInitializing {
-        _baseTokenURI = baseTokenURI;
-
-        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
-
-        _setupRole(MINTER_ROLE, _msgSender());
-        _setupRole(PAUSER_ROLE, _msgSender());
-    }
-
     function allOwner(uint256 parent, uint256 mother)
         internal
         view
@@ -249,11 +222,12 @@ contract FreeCityGame_v2 is
         );
         require(block.timestamp <= blindBoxEndDay, "n3");
         require(tos.length == qualities.length, "n4");
+        uint256 localBoxCurrentData=blindBoxCurrentData;
         for (uint256 i = 0; i < tos.length; i++) {
             uint256 count = _tokenIdTracker.current();
             _safeMint(tos[i], count);
-            blindBoxCurrentData = blindBoxCurrentData + 1;
-            blindBoxs[blindBoxCurrentData] = count;
+            localBoxCurrentData = localBoxCurrentData + 1;
+            blindBoxs[localBoxCurrentData] = count;
             voiceAttrs[count] = VoiceAttr(
                 0,
                 0,
@@ -265,6 +239,7 @@ contract FreeCityGame_v2 is
             );
             _tokenIdTracker.increment();
         }
+        blindBoxCurrentData=localBoxCurrentData;
         emit BatchMint(tos.length);
     }
 
@@ -456,14 +431,6 @@ contract FreeCityGame_v2 is
         return ERC721Upgradeable.isApprovedForAll(_owner, _operator);
     }
 
-    function claim(uint256 tokenId) external {
-        require(_exists(tokenId), "n1");
-        require(claims[tokenId].end < block.number, "n2");
-        require(claims[tokenId].to == _msgSender(), "n3");
-        delete freeCityPool[tokenId];
-        emit Withdraw(claims[tokenId].to, tokenId);
-    }
-
     function tokenURI(uint256 tokenId)
         public
         view
@@ -621,7 +588,6 @@ contract FreeCityGame_v2 is
         uint256 tokenId
     ) internal override {}
 
-    uint256[48] private __gap;
 
     
 }
