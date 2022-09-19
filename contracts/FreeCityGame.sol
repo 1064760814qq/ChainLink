@@ -1,19 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721PausableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/common/ERC2981Upgradeable.sol";
 
 contract FreeCityGame is
@@ -26,13 +22,11 @@ contract FreeCityGame is
     ERC2981Upgradeable,
     ReentrancyGuardUpgradeable
 {
-    using SafeMathUpgradeable for uint256;
-    using AddressUpgradeable for address;
+
     using CountersUpgradeable for CountersUpgradeable.Counter;
-    //nft的属性
-    // life 生命剩余值 挖矿次数
-    // grade 等级
-    // quality r s ssr
+
+    using StringsUpgradeable  for uint256;
+
 
     struct VoiceAttr {
         uint128 life;
@@ -43,28 +37,17 @@ contract FreeCityGame is
         address creator;
         string tokenURI;
     }
-    struct Claim {
-        address to;
-        uint256 tokenId;
-        uint256 end;
-    }
     uint256 public constant MAXMINTLIMIT = 8;
-    uint256 public constant BLOCKCLAIN = 6171;
     //tokenId => token 属性
     mapping(uint256 => VoiceAttr) private voiceAttrs;
 
     mapping(uint256 => bool) private freeCityPool;
 
-    mapping(uint256 => Claim) private claims;
 
     // tokenid =>hash
 
-    mapping(uint256 => string) private _tokenURIs;
-
     mapping(address => bool) public isAllowlistAddress;
     //预售
-
-    mapping(address => VoiceAttr) private preSales;
 
     address private openSea;
     address private whilteAddress;
@@ -85,10 +68,8 @@ contract FreeCityGame is
     CountersUpgradeable.Counter private _tokenIdTracker;
     event Deposit(address indexed, uint256 indexed, uint256);
     event Exchange(address indexed, address indexed, uint256);
-    event Mint(address indexed, address indexed, uint256);
     event Synthesis(uint256 indexed, uint256, uint256);
     event Withdraw(address indexed, uint256);
-    event Find(address indexed, address indexed, uint256);
     event Open(uint256 indexed, uint256);
     event StartBlind(uint256 indexed, uint256 indexed, string);
     event BatchMint(uint256 indexed);
@@ -103,7 +84,6 @@ contract FreeCityGame is
         __FreeCityGame_init_unchained(name, symbol);
         _tokenIdTracker.increment();
     }
-
     function __FreeCityGame_init_unchained(string memory, string memory)
         internal
         onlyInitializing
@@ -148,38 +128,10 @@ contract FreeCityGame is
         }
     }
 
-    function ____Voice721_init_init_unchained(
-        string memory,
-        string memory,
-        string memory baseTokenURI
-    ) internal onlyInitializing {
-        _baseTokenURI = baseTokenURI;
-
-        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
-
-        _setupRole(MINTER_ROLE, _msgSender());
-        _setupRole(PAUSER_ROLE, _msgSender());
-    }
-
-    function allOwner(uint256 parent, uint256 mother)
-        internal
-        view
-        returns (bool)
-    {
-        return
-            _isApprovedOrOwner(_msgSender(), parent) &&
-            _isApprovedOrOwner(_msgSender(), mother);
-    }
-
     function grantMintRole(address to) external {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "n1");
         _grantRole(MINTER_ROLE, to);
     }
-
-    function _baseURI() internal view virtual override returns (string memory) {
-        return _baseTokenURI;
-    }
-
     function exist(uint256 tokenId) external view returns (bool) {
         return _exists(tokenId);
     }
@@ -219,12 +171,13 @@ contract FreeCityGame is
         }
         for (uint256 i = curblindBoxIndex; i < end; i++) {
             voiceAttrs[blindBoxs[i]].tokenURI = string(
-                abi.encodePacked(_tokenUrl, "/", blindBoxs[i], ".json")
+                abi.encodePacked(_tokenUrl, "/", blindBoxs[i].toString(), ".json")
             );
         }
-        curblindBoxIndex = curblindBoxIndex + 100;
+        curblindBoxIndex = end;
         emit Open(curblindBoxIndex, blindBoxTotal);
     }
+
 
     function openAllBox(string memory _tokenUrl)
         external
@@ -255,11 +208,12 @@ contract FreeCityGame is
         );
         require(block.timestamp <= blindBoxEndDay, "n3");
         require(tos.length == qualities.length, "n4");
+        uint256 localBoxCurrentData=blindBoxCurrentData;
         for (uint256 i = 0; i < tos.length; i++) {
             uint256 count = _tokenIdTracker.current();
             _safeMint(tos[i], count);
-            blindBoxCurrentData = blindBoxCurrentData + 1;
-            blindBoxs[blindBoxCurrentData] = count;
+            localBoxCurrentData = localBoxCurrentData + 1;
+            blindBoxs[localBoxCurrentData] = count;
             voiceAttrs[count] = VoiceAttr(
                 0,
                 0,
@@ -271,6 +225,7 @@ contract FreeCityGame is
             );
             _tokenIdTracker.increment();
         }
+        blindBoxCurrentData=localBoxCurrentData;
         emit BatchMint(tos.length);
     }
 
@@ -347,7 +302,7 @@ contract FreeCityGame is
         require(voiceAttrs[parent].life < MAXMINTLIMIT, "n3");
         require(voiceAttrs[mother].life < MAXMINTLIMIT, "n3");
         unchecked {
-            voiceAttrs[mother].life = voiceAttrs[mother].life + 1;
+            voiceAttrs[parent].life = voiceAttrs[parent].life + 1;
             voiceAttrs[mother].life = voiceAttrs[mother].life + 1;
         }
         uint256 id = _tokenIdTracker.current();
@@ -361,6 +316,7 @@ contract FreeCityGame is
             _msgSender(),
             _tokenURI
         );
+        freeCityPool[id] = true;
         _tokenIdTracker.increment();
         emit Synthesis(id, parent, mother);
     }
@@ -392,12 +348,25 @@ contract FreeCityGame is
         return freeCityPool[tokenId];
     }
 
-    /**
-     *  do not stake status
-     */
-    function transfer(address to, uint256 _tokenId) external {
+    
+    // function transfer(address to, uint256 _tokenId) external {
+    //     require(freeCityPool[_tokenId] == false, "n1");
+    //     safeTransferFrom(msg.sender, to, _tokenId);
+    // }
+
+    function transferFrom(address from,address to, uint256 _tokenId) public override(ERC721Upgradeable, IERC721Upgradeable){
         require(freeCityPool[_tokenId] == false, "n1");
-        safeTransferFrom(msg.sender, to, _tokenId);
+        ERC721Upgradeable.transferFrom(from, to, _tokenId);
+    }
+
+    function safeTransferFrom(address from,address to, uint256 _tokenId) public override(ERC721Upgradeable, IERC721Upgradeable){
+        require(freeCityPool[_tokenId] == false, "n1");
+        ERC721Upgradeable.safeTransferFrom(from, to, _tokenId);
+    }
+
+    function safeTransferFrom(address from,address to, uint256 _tokenId, bytes memory data) public override(ERC721Upgradeable, IERC721Upgradeable){
+        require(freeCityPool[_tokenId] == false, "n1");
+        ERC721Upgradeable.safeTransferFrom(from, to, _tokenId, data);
     }
 
     function withdraw(
@@ -408,7 +377,6 @@ contract FreeCityGame is
     ) external onlyRole(MINTER_ROLE) {
         require(_exists(tokenId), "nonexistent token");
         require(freeCityPool[tokenId] == true, "n1");
-        require(claims[tokenId].end == 0, "n3");
         voiceAttrs[tokenId].life = life;
         voiceAttrs[tokenId].grade = grade;
         address owner = ERC721Upgradeable.ownerOf(tokenId);
@@ -449,14 +417,6 @@ contract FreeCityGame is
         return ERC721Upgradeable.isApprovedForAll(_owner, _operator);
     }
 
-    function claim(uint256 tokenId) external {
-        require(_exists(tokenId), "n1");
-        require(claims[tokenId].end < block.number, "n2");
-        require(claims[tokenId].to == _msgSender(), "n3");
-        delete freeCityPool[tokenId];
-        emit Withdraw(claims[tokenId].to, tokenId);
-    }
-
     function tokenURI(uint256 tokenId)
         public
         view
@@ -467,11 +427,14 @@ contract FreeCityGame is
         return voiceAttrs[tokenId].tokenURI;
     }
 
-
-    function updateTokenUri(uint256 tokenId,string memory _tokenUrl) external onlyRole(MINTER_ROLE){
-         require(_exists(tokenId), "n1");
-         voiceAttrs[tokenId].tokenURI=_tokenUrl;
+    function updateTokenUri(uint256 tokenId, string memory _tokenUrl)
+        external
+        onlyRole(MINTER_ROLE)
+    {
+        require(_exists(tokenId), "n1");
+        voiceAttrs[tokenId].tokenURI = _tokenUrl;
     }
+
     function updateMutData(
         uint256 tokenId,
         uint128 life,
@@ -499,6 +462,14 @@ contract FreeCityGame is
             freeCityPool[_tokenId],
             tokenURI(_tokenId)
         );
+    }
+
+    function getParents(uint256 _tokenId)
+        public
+        view
+        returns (uint256, uint256)
+    {
+        return (voiceAttrs[_tokenId].parent, voiceAttrs[_tokenId].mother);
     }
 
     /**
@@ -585,23 +556,6 @@ contract FreeCityGame is
         super._beforeTokenTransfer(from, to, tokenId);
         require(!paused(), "pause tx");
     }
-
-    /**
-     * @dev Hook that is called after any transfer of tokens. This includes
-     * minting and burning.
-     *
-     * Calling conditions:
-     *
-     * - when `from` and `to` are both non-zero.
-     * - `from` and `to` are never both zero.
-     *
-     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
-     */
-    function _afterTokenTransfer(
-        address from,
-        address to,
-        uint256 tokenId
-    ) internal override {}
-
-    uint256[48] private __gap;
+    
 }
+

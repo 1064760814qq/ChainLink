@@ -3,7 +3,7 @@ import { ethers, upgrades } from "hardhat";
 async function main() {
   // Deploying
 
-  const FreeCityGame = await ethers.getContractFactory("FreeCityGame_v2");
+  const FreeCityGame = await ethers.getContractFactory("FreeCityGame");
   const instance = await upgrades.deployProxy(FreeCityGame, ["FCM", "FCM"]);
   await instance.deployed();
 
