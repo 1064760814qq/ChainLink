@@ -36,12 +36,12 @@ describe('VoiceBenefitCard合约测试', () => {
  
     var data = 30; //开放盲盒开卖的时长
     var _baseUri = "https://motor-nft.s3.ap-southeast-1.amazonaws.com/info/file/0.json" //所有的盲盒都走这个json
-    var _whilteAddress = this.CardContract.address
+    var _white = this.CardContract.address
     var name = "FCG" //再商量
     var symbol = "FCG" //再商量
     await this.FreeCityGameContract.initialize(name,symbol); //一定是第一位
     await this.FreeCityGameContract.startNewBlindBox(total,data,_baseUri); //顺序不能错位
-    await this.FreeCityGameContract.setWhiteListAddress(_whilteAddress);
+    await this.FreeCityGameContract.setWhiteListAddress(_white);
    
   })
 

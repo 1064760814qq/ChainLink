@@ -142,14 +142,16 @@ contract VoiceBenefitCard is OwnableUpgradeable,ERC1155Upgradeable{
 
 
     function preSale( uint numberOfTokens) public payable{
-      require(index <= totalSupply);
+      require(index <= totalSupply,"Exceeding the total amount");
       require(msg.value == (getMintPrice(msg.sender) * numberOfTokens)," value error");
       require(mintTotal[msg.sender] + numberOfTokens <= uint8(5),"Exceeded times");
+      uint localIndex = index;
 
        for (uint256 i = 0; i < numberOfTokens; i++) {
-            FreeCity(freeCity).preMint(msg.sender,arrRandom[index]);
-            index = index + 1;
+            FreeCity(freeCity).preMint(msg.sender,arrRandom[localIndex]);
+            localIndex = localIndex + 1;
         }
+        index = index + numberOfTokens;
         mintTotal[msg.sender] = mintTotal[msg.sender] + numberOfTokens;
 
        emit PreMint(msg.sender,numberOfTokens);

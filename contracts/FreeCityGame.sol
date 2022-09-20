@@ -50,7 +50,7 @@ contract FreeCityGame is
     //预售
 
     address private openSea;
-    address private whilteAddress;
+    address private whiteAddress;
 
     //blindbox index to tokenId
     mapping(uint256 => uint256) private blindBoxs;
@@ -58,7 +58,7 @@ contract FreeCityGame is
     uint256 public blindBoxTotal;
     uint256 public blindBoxCurrentData;
     uint256 public blindBoxEndDay;
-    string public blindBoxBaseUrl;
+    string public blindBoxBaseUri;
     //当前开盲盒的进度
     uint256 public curblindBoxIndex;
 
@@ -120,7 +120,7 @@ contract FreeCityGame is
     }
 
     function allowlistAddresses(address[] calldata wAddresses)
-        public
+        external
         onlyRole(DEFAULT_ADMIN_ROLE)
     {
         for (uint256 i = 0; i < wAddresses.length; i++) {
@@ -142,7 +142,7 @@ contract FreeCityGame is
     {
         require(blindBoxEndDay != 0, "n1");
         // require(AddressUpgradeable.isContract(first), "n2");
-        whilteAddress = first;
+        whiteAddress = first;
     }
 
     function startNewBlindBox(
@@ -153,8 +153,8 @@ contract FreeCityGame is
         blindBoxTotal = total;
         blindBoxCurrentData = 0;
         blindBoxEndDay = block.timestamp + date * 86400; //86400表示一天
-        blindBoxBaseUrl = _baseUri;
-        emit StartBlind(blindBoxTotal, blindBoxEndDay, blindBoxBaseUrl);
+        blindBoxBaseUri = _baseUri;
+        emit StartBlind(blindBoxTotal, blindBoxEndDay, blindBoxBaseUri);
     }
 
     function openBlindBox(string memory _tokenUrl)
@@ -199,9 +199,10 @@ contract FreeCityGame is
     }
 
     function batchMint(address[] memory tos, uint256[] memory qualities)
-        public
+        external
+        nonReentrant
     {
-        require(msg.sender == whilteAddress, "n1");
+        require(msg.sender == whiteAddress, "n1");
         require(
             blindBoxTotal > 0 && blindBoxCurrentData <= blindBoxTotal,
             "n2"
@@ -221,7 +222,7 @@ contract FreeCityGame is
                 qualities[i],
                 0,
                 _msgSender(),
-                blindBoxBaseUrl
+                blindBoxBaseUri
             );
             _tokenIdTracker.increment();
         }
@@ -229,8 +230,8 @@ contract FreeCityGame is
         emit BatchMint(tos.length);
     }
 
-    function preMint(address to, uint256 quality) public {
-        require(msg.sender == whilteAddress, "n1");
+    function preMint(address to, uint256 quality) external nonReentrant{
+        require(msg.sender == whiteAddress, "n1");
         require(
             blindBoxTotal > 0 && blindBoxCurrentData <= blindBoxTotal,
             "n2"
@@ -246,17 +247,20 @@ contract FreeCityGame is
             quality,
             0,
             _msgSender(),
-            blindBoxBaseUrl
+            blindBoxBaseUri
         );
         _tokenIdTracker.increment();
     }
 
-    function setBlindBoxBaseUrl(string memory _blindBoxBaseUri) external {
-        blindBoxBaseUrl = _blindBoxBaseUri;
+    function setblindBoxBaseUri(string memory _blindBoxBaseUri) 
+    external 
+    onlyRole(MINTER_ROLE) 
+    {
+        blindBoxBaseUri = _blindBoxBaseUri;
     }
 
-    function getBlindBoxBaseUrl() external view returns (string memory) {
-        return blindBoxBaseUrl;
+    function getblindBoxBaseUri() external view returns (string memory) {
+        return blindBoxBaseUri;
     }
 
     function blindBox(address to) public view {
@@ -274,7 +278,7 @@ contract FreeCityGame is
         address to,
         uint256 quality,
         string calldata _tokenURI
-    ) public {
+    ) external {
         require(hasRole(MINTER_ROLE, _msgSender()), "n2");
         // can be burned (destroyed), so we need a separate counter.
         _safeMint(to, _tokenIdTracker.current());
@@ -296,7 +300,7 @@ contract FreeCityGame is
         uint256 quality,
         address to,
         string calldata _tokenURI
-    ) public {
+    ) external {
         require(freeCityPool[parent] && freeCityPool[mother], "n1");
         require(hasRole(MINTER_ROLE, _msgSender()), "n2");
         require(voiceAttrs[parent].life < MAXMINTLIMIT, "n3");
@@ -323,7 +327,7 @@ contract FreeCityGame is
 
     function deposit(uint256 tokenId, uint256 userId) external nonReentrant {
         require(_exists(tokenId), "n1");
-        require(freeCityPool[tokenId] == false, "n2");
+        require(!freeCityPool[tokenId], "n2");
         require(_isApprovedOrOwner(_msgSender(), tokenId), "n3");
         freeCityPool[tokenId] = true;
         emit Deposit(_msgSender(), userId, tokenId);
@@ -336,7 +340,7 @@ contract FreeCityGame is
         uint128 grade
     ) external {
         require(hasRole(MINTER_ROLE, msg.sender), "n1");
-        require(freeCityPool[tokenId] == true, "n2");
+        require(freeCityPool[tokenId], "n2");
         address owner = ERC721Upgradeable.ownerOf(tokenId);
         voiceAttrs[tokenId].life = life;
         voiceAttrs[tokenId].grade = grade;
@@ -355,17 +359,17 @@ contract FreeCityGame is
     // }
 
     function transferFrom(address from,address to, uint256 _tokenId) public override(ERC721Upgradeable, IERC721Upgradeable){
-        require(freeCityPool[_tokenId] == false, "n1");
+        require(!freeCityPool[_tokenId], "n1");
         ERC721Upgradeable.transferFrom(from, to, _tokenId);
     }
 
     function safeTransferFrom(address from,address to, uint256 _tokenId) public override(ERC721Upgradeable, IERC721Upgradeable){
-        require(freeCityPool[_tokenId] == false, "n1");
+        require(!freeCityPool[_tokenId], "n1");
         ERC721Upgradeable.safeTransferFrom(from, to, _tokenId);
     }
 
     function safeTransferFrom(address from,address to, uint256 _tokenId, bytes memory data) public override(ERC721Upgradeable, IERC721Upgradeable){
-        require(freeCityPool[_tokenId] == false, "n1");
+        require(!freeCityPool[_tokenId], "n1");
         ERC721Upgradeable.safeTransferFrom(from, to, _tokenId, data);
     }
 
@@ -376,7 +380,7 @@ contract FreeCityGame is
         uint128 grade
     ) external onlyRole(MINTER_ROLE) {
         require(_exists(tokenId), "nonexistent token");
-        require(freeCityPool[tokenId] == true, "n1");
+        require(freeCityPool[tokenId], "n1");
         voiceAttrs[tokenId].life = life;
         voiceAttrs[tokenId].grade = grade;
         address owner = ERC721Upgradeable.ownerOf(tokenId);
@@ -439,7 +443,7 @@ contract FreeCityGame is
         uint256 tokenId,
         uint128 life,
         uint128 grade
-    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(_exists(tokenId), "n1");
         voiceAttrs[tokenId].life = life;
         voiceAttrs[grade].life = grade;
